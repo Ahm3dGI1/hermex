@@ -11,6 +11,8 @@ from utils.youtube_utils import download_audio
 import os
 from dotenv import load_dotenv
 
+import json
+
 load_dotenv()
 
 app = FastAPI()
