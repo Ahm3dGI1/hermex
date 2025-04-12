@@ -6,6 +6,7 @@ type EventType = "response.done" | "session.update" | "session.created" | "respo
 export interface Checkpoint {
     time: number;
     question: string;
+    segment: string;
   }
 
 interface ResponseOutput {
@@ -57,7 +58,7 @@ interface ResponseDoneEvent extends BaseEvent {
   };
 }
 
-interface SessionUpdatedEvent extends BaseEvent {
+interface SessionUpdateEvent extends BaseEvent {
   type: "session.update";
   session: {
     modalities?: string[];
@@ -119,7 +120,7 @@ interface ResponseCreateEvent extends BaseEvent {
 }
 
 
-type RealtimeEvent = ResponseDoneEvent | SessionUpdatedEvent | SessionCreatedEvent | ResponseCreateEvent;
+type RealtimeEvent = ResponseDoneEvent | SessionUpdateEvent | SessionCreatedEvent | ResponseCreateEvent;
 
-export type { RealtimeEvent, ResponseCreateEvent, ResponseDoneEvent, ResponseOutput, SessionCreatedEvent, SessionUpdatedEvent, Status };
+export type { RealtimeEvent, ResponseCreateEvent, ResponseDoneEvent, ResponseOutput, SessionCreatedEvent, SessionUpdateEvent, Status };
 
