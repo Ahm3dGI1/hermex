@@ -5,20 +5,25 @@ function AnimatedText({ text, onComplete }: { text: string, onComplete?: () => v
   const words = text.split(' ');
 
   useEffect(() => {
+    let timer: number;
+    
     if (visibleWords < words.length) {
-      const timer = setTimeout(() => {
+      timer = window.setTimeout(() => {
         setVisibleWords(prev => prev + 1);
       }, 40);
-      return () => clearTimeout(timer);
     } else if (onComplete) {
       onComplete();
     }
+
+    return () => {
+      if (timer) window.clearTimeout(timer);
+    };
   }, [visibleWords, words.length, onComplete]);
 
   return (
     <>
       {words.map((word, index) => (
-        <React.Fragment key={index}>
+        <React.Fragment key={`${word}-${index}`}>
           <span
             className="inline-block transition-opacity duration-300"
             style={{ opacity: index < visibleWords ? 1 : 0 }}
