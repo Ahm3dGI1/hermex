@@ -1,7 +1,7 @@
 type Status = 'waitingForInput' | 'processing' | 'class' | 'review' | 'done';
 
 
-type EventType = "response.done" | "session.update" | "session.created" | "response.create" | "session.updated" | "conversation.item.create";
+type EventType = "response.done" | "session.update" | "session.created" | "response.create" | "session.updated" | "conversation.item.create" | "response.created";
 
 export interface Checkpoint {
     time: number;
@@ -139,8 +139,17 @@ interface ResponseCreateEvent extends BaseEvent {
   };
 }
 
+interface ResponseCreatedEvent extends BaseEvent {
+  type: "response.created";
+  response?: {
+    instructions?: string;
+    tool_choice?: any;
+    output?: ResponseOutput[];
+  };
+}
 
-type RealtimeEvent = ResponseDoneEvent | SessionUpdateEvent | SessionCreatedEvent | ResponseCreateEvent | SessionUpdatedEvent | ConversationItemCreateEvent;
 
-export type { ConversationItemCreateEvent, RealtimeEvent, ResponseCreateEvent, ResponseDoneEvent, ResponseOutput, SessionCreatedEvent, SessionUpdateEvent, Status };
+type RealtimeEvent = ResponseDoneEvent | SessionUpdateEvent | SessionCreatedEvent | ResponseCreateEvent | SessionUpdatedEvent | ConversationItemCreateEvent | ResponseCreatedEvent;
+
+export type { ConversationItemCreateEvent, RealtimeEvent, ResponseCreatedEvent, ResponseCreateEvent, ResponseDoneEvent, ResponseOutput, SessionCreatedEvent, SessionUpdateEvent, Status };
 

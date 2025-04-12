@@ -310,14 +310,13 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     console.log(mostRecentEvent);
     if (mostRecentEvent.type === "session.updated") {
       console.log("session updated");
-      // setTimeout(() => {
-      //   sendClientEvent({
-      //     type: "response.create",
-      //     response: {
-      //       instructions: `First very concisely remind the user what the previous content was about, then ask the question. Make sure that you don't reveal the answer before the question. Start speaking`,
-      //     },
-      //   });
-      // }, 20);
+      
+    }
+    if (mostRecentEvent.type === "response.done" && (mostRecentEvent.response?.output?.[0]?.type === "message" || mostRecentEvent.response?.output?.[1]?.type === "message")) {
+      setHermexIsAnimating(false);
+    }
+    if (mostRecentEvent.type === "response.created" && (mostRecentEvent.response?.output?.[0]?.type === "message" || mostRecentEvent.response?.output?.[1]?.type === "message")) {
+      setHermexIsAnimating(true);
     }
 
     if (
