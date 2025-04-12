@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Whiteboard from './Whiteboard';
-import Screen from './Screen';
+import Screen from './Screen.tsx';
 import Yap from './Yap';
 import { Checkpoint, Status } from '../components/Types';
 
