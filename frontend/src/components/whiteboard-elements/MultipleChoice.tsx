@@ -32,12 +32,14 @@ const MultipleChoice = ({ functionCallOutput, handleChoiceClick }: MultipleChoic
 
   useEffect(() => {
     if (hasSelected && selectedChoice && quiz?.feedback) {
-      const timer = setTimeout(() => {
-        setDisplayedFeedback(prev => prev + quiz.feedback[feedbackIndex]);
-        setFeedbackIndex(prev => prev + 1);
-      }, 25);
+      if (feedbackIndex < quiz.feedback.length) {
+        const timer = setTimeout(() => {
+          setDisplayedFeedback(prev => prev + quiz.feedback[feedbackIndex]);
+          setFeedbackIndex(prev => prev + 1);
+        }, 25);
 
-      return () => clearTimeout(timer);
+        return () => clearTimeout(timer);
+      }
     }
   }, [feedbackIndex, hasSelected, selectedChoice, quiz?.feedback]);
 
@@ -57,7 +59,7 @@ const MultipleChoice = ({ functionCallOutput, handleChoiceClick }: MultipleChoic
   };
 
   return (
-    <div className="bg-[#1b1e28] rounded-lg p-6 shadow-md text-white max-w-2xl mx-auto">
+    <div className="rounded-lg p-6 text-white max-w-2xl mx-auto">
       <h2 className="text-3xl font-bold underline mb-4">{quiz?.title}</h2>
       <p className="text-xl mb-6">{quiz?.question}</p>
 
@@ -89,7 +91,7 @@ const MultipleChoice = ({ functionCallOutput, handleChoiceClick }: MultipleChoic
             }`}>
             {selectedChoice === quiz?.correctAnswer ? 'Correct!' : 'Incorrect'}
           </div>
-          <div className="pt-2 text-white font-light text-lg">
+          <div className="pt-2 text-white font-light text-xs">
             {displayedFeedback}
           </div>
         </>
