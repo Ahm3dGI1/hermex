@@ -27,18 +27,7 @@ export default function Classroom() {
                     checkpoints={checkpoints}
                     currentCheckpointIndex={currentCheckpointIndex}
                 />
-                <Screen
-                    status={status}
-                    setStatus={setStatus}
-                    conversationMode={conversationMode}
-                    setConversationMode={setConversationMode}
-                    checkpoints={checkpoints}
-                    setCheckpoints={setCheckpoints}
-                    currentCheckpointIndex={currentCheckpointIndex}
-                    setCurrentCheckpointIndex={setCurrentCheckpointIndex}
-                    isDown={isDown}
-                    setIsDown={setIsDown}
-                />
+
                 <Yap isDown={isDown} />
             </div>
         </div>
