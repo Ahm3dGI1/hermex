@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Checkpoint, RealtimeEvent, ResponseOutput, SessionUpdateEvent, Status } from './Types';
-import Explanation from './whiteboard-elements/Explanation';
-import MultipleChoice from './whiteboard-elements/MultipleChoice';
+import { Checkpoint, RealtimeEvent, ResponseOutput, SessionUpdateEvent, Status } from './Types.tsx';
+import Explanation from './whiteboard-elements/Explanation.tsx';
+import MultipleChoice from './whiteboard-elements/MultipleChoice.tsx';
 import { getBackendAPI } from '../utils/backendApi.tsx';
 type UIType = 'empty' | 'explanation' | 'multiple_choice' | 'buttons';
+
+
 
 const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoints: Checkpoint[], currentCheckpointIndex: number }) => {
   let transcript = "";
@@ -98,7 +100,6 @@ const sessionData: SessionUpdateEvent = {
     tool_choice: "auto",
   },
 };
-
 
 export default function Whiteboard({ status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex }: { status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number }) {
   const [currentUI, setCurrentUI] = useState<UIType>('empty');
@@ -363,19 +364,20 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       case "multiple_choice":
         return <MultipleChoice functionCallOutput={recentFunctionCallEvent!} handleChoiceClick={handleChoiceClick} />;
       default:
-        return <div>Empty</div>;
+        return <div>Checkpoint</div>;
     }
   }
+
   return (
-    <div className='absolute bg-gray-200 w-2/3 z-10'>
-      <h1>Whiteboard</h1>
+    <div className="mx-auto mt-[100px] ml-[300px] w-[1050px] h-[600px]">
+      {getUI()}
       {conversationMode && (
-        <div>
-          <h1>Real time chat starting...</h1>
-          <button onClick={handleEndChat}>End Chat</button>
+        <div className="flex mt-[500px] items-center justify-center gap-4 w-full">
+          <button onClick={handleEndChat} className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors w-48"
+          >End Chat</button>
         </div>
       )}
-      {getUI()}
     </div>
-  )
-}
+  );
+};
+
