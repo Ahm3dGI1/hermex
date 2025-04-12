@@ -40,12 +40,16 @@ export default function Screen({
       }
     }
   
+    const handleVideoEnd = () => {
+      console.log("Video ended");
+      setStatus('review');
+    }
     const [youtubeLink, setYoutubeLink] = useState<string>('');
     const [videoId, setVideoId] = useState<string | null>(null);
-    const { play, pause } = useYoutubePlayer(videoId, handleTimeUpdate); // Custom hook to manage YouTube player
+    const { play, pause } = useYoutubePlayer(videoId, handleTimeUpdate, handleVideoEnd); // Custom hook to manage YouTube player
 
     useEffect(() => {
-        if (!conversationMode) {
+        if (!conversationMode && status === 'class') {
             play();
         }
     }, [conversationMode]);

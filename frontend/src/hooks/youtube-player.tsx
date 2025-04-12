@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 
 export const useYoutubePlayer = (
     videoId: string | null,
-    onTimeUpdate?: (time: number) => void
+    onTimeUpdate?: (time: number) => void,
+    onVideoEnd?: () => void // Add new callback prop
 ) => {
     const playerRef = useRef<any>(null);
 
@@ -19,10 +20,22 @@ export const useYoutubePlayer = (
             playerRef.current = new window.YT.Player('youtube-player', {
                 events: {
                     onReady: () => console.log('YouTube Player Ready'),
+                    onStateChange: (event: any) => {
+                        // YouTube player states:
+                        // -1 (unstarted)
+                        // 0 (ended)
+                        // 1 (playing)
+                        // 2 (paused)
+                        // 3 (buffering)
+                        // 5 (video cued)
+                        if (event.data === 0 && onVideoEnd) {
+                            onVideoEnd();
+                        }
+                    },
                 },
             });
         }
-    }, [videoId]);
+    }, [videoId, onVideoEnd]);
 
     useEffect(() => {
         const interval = setInterval(() => {
