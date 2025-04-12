@@ -32,7 +32,7 @@ export const useYoutubePlayer = (
                     onTimeUpdate(currentTime);
                 }
             }
-        }, 500);
+        }, 900);
 
         return () => clearInterval(interval);
     }, [onTimeUpdate]);
