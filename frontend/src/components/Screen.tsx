@@ -95,7 +95,9 @@ export default function Screen({
   useEffect(() => {
     if (!conversationMode && status === 'class' && playerRef.current) {
       if (!isDown) {
-        setIsDown(true);
+        setTimeout(() => {
+          setIsDown(true);
+        }, 2000);
       }
       play();
     }
