@@ -39,8 +39,6 @@ def clean_transcript_segments(segments: list) -> list[dict]:
         for segment in segments
     ]
 
-session_data = {}
-
 class PreprocessRequest(BaseModel):
     youtube_link: str
 
