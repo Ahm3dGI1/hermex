@@ -52,6 +52,10 @@ class PreprocessRequest(BaseModel):
 class QuestionRequest(BaseModel):
     question: str
 
+@app.get("/api/ping")
+def ping():
+    return {"status": "ok"}
+
 @app.post("/api/preprocess")
 def preprocess_video(data: PreprocessRequest):
     try:

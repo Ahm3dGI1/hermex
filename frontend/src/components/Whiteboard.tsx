@@ -4,7 +4,7 @@ import Explanation from './whiteboard-elements/Explanation';
 import MultipleChoice from './whiteboard-elements/MultipleChoice';
 type UIType = 'empty' | 'explanation' | 'multiple_choice' | 'buttons';
 
-const buildInstructions = ({checkpoints, currentCheckpointIndex}: {checkpoints: Checkpoint[], currentCheckpointIndex: number}) => {
+const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoints: Checkpoint[], currentCheckpointIndex: number }) => {
   let transcript = "";
   for (let i = 0; i <= currentCheckpointIndex; i++) {
     transcript += checkpoints[i].segment + " ";
@@ -27,30 +27,30 @@ Transcription:
   `;
 }
 const sessionData: SessionUpdateEvent = {
-    type: "session.update",
-    session: {
-        instructions: "You are helpful assistant, that uses visual aids to explain things. You speak English.", // This must be updated based on the checkpoint
-      tools: [
-        {
-          type: "function",
-          name: "display_explanation_text",
-          description: 'Display explanation text to supplement your explanation. Run this first before you start explaning',
-          parameters: {
-            type: "object",
-            strict: true,
-            properties: {
-              title: {
-                type: "string",
-                description: "The title of the explanation",
-              },
-              text: {
-                type: "string",
-                description: "Very concise one sentence explanation to display",
-              },
+  type: "session.update",
+  session: {
+    instructions: "You are helpful assistant, that uses visual aids to explain things. You speak English.", // This must be updated based on the checkpoint
+    tools: [
+      {
+        type: "function",
+        name: "display_explanation_text",
+        description: 'Display explanation text to supplement your explanation. Run this first before you start explaning',
+        parameters: {
+          type: "object",
+          strict: true,
+          properties: {
+            title: {
+              type: "string",
+              description: "The title of the explanation",
             },
-            required: ["title", "text"],
+            text: {
+              type: "string",
+              description: "Very concise one sentence explanation to display",
+            },
           },
+          required: ["title", "text"],
         },
+      },
       {
         type: "function",
         name: "display_multiple_choice",
@@ -68,7 +68,7 @@ const sessionData: SessionUpdateEvent = {
               description: "The question text"
             },
             options: {
-              type: "array", 
+              type: "array",
               items: {
                 type: "string"
               },
@@ -93,204 +93,204 @@ const sessionData: SessionUpdateEvent = {
           required: []
         }
       }
-      ],
-      tool_choice: "auto",
-    },
-  };
+    ],
+    tool_choice: "auto",
+  },
+};
 
 
-export default function Whiteboard( {status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex}: {status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number}) {
-    const [currentUI, setCurrentUI] = useState<UIType>('empty');
+export default function Whiteboard({ status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex }: { status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number }) {
+  const [currentUI, setCurrentUI] = useState<UIType>('empty');
 
-    const [isSessionActive, setIsSessionActive] = useState(false);
-    const [recentFunctionCallEvent, setRecentFunctionCallEvent] = useState<ResponseOutput | null>(null);
-    const [sessionUpdated, setSessionUpdated] = useState(false);
-    const [events, setEvents] = useState<RealtimeEvent[]>([]);
-    const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null);
-    const peerConnection = useRef<RTCPeerConnection | null>(null);
-    const audioElement = useRef<HTMLAudioElement | null>(null);
+  const [isSessionActive, setIsSessionActive] = useState(false);
+  const [recentFunctionCallEvent, setRecentFunctionCallEvent] = useState<ResponseOutput | null>(null);
+  const [sessionUpdated, setSessionUpdated] = useState(false);
+  const [events, setEvents] = useState<RealtimeEvent[]>([]);
+  const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null);
+  const peerConnection = useRef<RTCPeerConnection | null>(null);
+  const audioElement = useRef<HTMLAudioElement | null>(null);
 
 
 
-  
-    async function startSession() {
-      // Get a session token for OpenAI Realtime API
-      // const tokenResponse = await fetch("/token");
-      // const data = await tokenResponse.json();
-      const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-      
-      const response = await fetch(
-          "https://api.openai.com/v1/realtime/sessions",
-          {
-          method: "POST",
-          headers: {
-              Authorization: `Bearer ${API_KEY}`,
-              "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-              model: "gpt-4o-realtime-preview-2024-12-17",
-              voice: "verse",
-          }),
-          },
-      );
-  
-      const data = await response.json();
-      console.log(data);
-      
-      const EPHEMERAL_KEY = data.client_secret.value;
-      // Create a peer connection
-      const pc = new RTCPeerConnection();
-  
-      // Set up to play remote audio from the model
-      const audio = document.createElement("audio");
-      audio.autoplay = true;
-      audioElement.current = audio;
-      pc.ontrack = (e) => {
-        if (audioElement.current) {
-          audioElement.current.srcObject = e.streams[0];
-        }
-      };
-  
-      // Add local audio track for microphone input in the browser
-      const ms = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
-      pc.addTrack(ms.getTracks()[0]);
-  
-      // Set up data channel for sending and receiving events
-      const dc = pc.createDataChannel("oai-events");
-      setDataChannel(dc);
-  
-      // Start the session using the Session Description Protocol (SDP)
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-  
-      const baseUrl = "https://api.openai.com/v1/realtime";
-      const model = "gpt-4o-realtime-preview-2024-12-17";
-      const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
+
+  async function startSession() {
+    // Get a session token for OpenAI Realtime API
+    // const tokenResponse = await fetch("/token");
+    // const data = await tokenResponse.json();
+    const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+
+    const response = await fetch(
+      "https://api.openai.com/v1/realtime/sessions",
+      {
         method: "POST",
-        body: offer.sdp,
         headers: {
-          Authorization: `Bearer ${EPHEMERAL_KEY}`,
-          "Content-Type": "application/sdp",
+          Authorization: `Bearer ${API_KEY}`,
+          "Content-Type": "application/json",
         },
-      });
-  
-      const answer: RTCSessionDescriptionInit = {
-        type: 'answer',
-        sdp: await sdpResponse.text(),
-      };
-      await pc.setRemoteDescription(answer);
-  
-      peerConnection.current = pc;
-    }
-  
-    function stopSession() {
-      if (dataChannel) {
-        dataChannel.close();
-      }
-  
-      if (peerConnection.current) {
-        peerConnection.current.getSenders().forEach((sender: RTCRtpSender) => {
-          if (sender.track) {
-            sender.track.stop();
-          }
-        });
-        peerConnection.current.close();
-      }
-  
-      setIsSessionActive(false);
-      setDataChannel(null);
-      peerConnection.current = null;
-    }
-  
-    // Send a message to the model
-    function sendClientEvent(message: RealtimeEvent) {
-      if (dataChannel) {
-        const timestamp = new Date().toLocaleTimeString();
-        message.event_id = message.event_id || crypto.randomUUID();
-        // send event before setting timestamp since the backend peer doesn't expect this field
-        dataChannel.send(JSON.stringify(message));
-  
-        // if guard just in case the timestamp exists by miracle
-        if (!message.timestamp) {
-          message.timestamp = timestamp;
-        }
-        
-        setEvents((prev) => [message, ...prev]);
-      } else {
-        console.error(
-          "Failed to send message - no data channel available",
-          message,
-        );
-      }
-    }
-  
-    useEffect(() => {
-      if (dataChannel) {
-        // Append new server events to the list
-        dataChannel.addEventListener("message", (e: MessageEvent) => {
-          const event: RealtimeEvent = JSON.parse(e.data);
-          if (!event.timestamp) {
-            event.timestamp = new Date().toLocaleTimeString();
-          }
-  
-          setEvents((prev) => [event, ...prev]);
-        });
-  
-        // Set session active when the data channel is opened
-        dataChannel.addEventListener("open", () => {
-          setIsSessionActive(true);
-          setEvents([]);
-        });
-      }
-    }, [dataChannel]);
-  
-    useEffect(() => {
-      if (!events || events.length === 0) return;
-  
-      const firstEvent = events[events.length - 1];
-      if (!sessionUpdated && firstEvent.type === "session.created") {
+        body: JSON.stringify({
+          model: "gpt-4o-realtime-preview-2024-12-17",
+          voice: "verse",
+        }),
+      },
+    );
 
-        sessionData.session.instructions = buildInstructions({checkpoints, currentCheckpointIndex});
-      
-        sendClientEvent(sessionData);
-        console.log("session created");
+    const data = await response.json();
+    console.log(data);
+
+    const EPHEMERAL_KEY = data.client_secret.value;
+    // Create a peer connection
+    const pc = new RTCPeerConnection();
+
+    // Set up to play remote audio from the model
+    const audio = document.createElement("audio");
+    audio.autoplay = true;
+    audioElement.current = audio;
+    pc.ontrack = (e) => {
+      if (audioElement.current) {
+        audioElement.current.srcObject = e.streams[0];
+      }
+    };
+
+    // Add local audio track for microphone input in the browser
+    const ms = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+    });
+    pc.addTrack(ms.getTracks()[0]);
+
+    // Set up data channel for sending and receiving events
+    const dc = pc.createDataChannel("oai-events");
+    setDataChannel(dc);
+
+    // Start the session using the Session Description Protocol (SDP)
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+
+    const baseUrl = "https://api.openai.com/v1/realtime";
+    const model = "gpt-4o-realtime-preview-2024-12-17";
+    const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
+      method: "POST",
+      body: offer.sdp,
+      headers: {
+        Authorization: `Bearer ${EPHEMERAL_KEY}`,
+        "Content-Type": "application/sdp",
+      },
+    });
+
+    const answer: RTCSessionDescriptionInit = {
+      type: 'answer',
+      sdp: await sdpResponse.text(),
+    };
+    await pc.setRemoteDescription(answer);
+
+    peerConnection.current = pc;
+  }
+
+  function stopSession() {
+    if (dataChannel) {
+      dataChannel.close();
+    }
+
+    if (peerConnection.current) {
+      peerConnection.current.getSenders().forEach((sender: RTCRtpSender) => {
+        if (sender.track) {
+          sender.track.stop();
+        }
+      });
+      peerConnection.current.close();
+    }
+
+    setIsSessionActive(false);
+    setDataChannel(null);
+    peerConnection.current = null;
+  }
+
+  // Send a message to the model
+  function sendClientEvent(message: RealtimeEvent) {
+    if (dataChannel) {
+      const timestamp = new Date().toLocaleTimeString();
+      message.event_id = message.event_id || crypto.randomUUID();
+      // send event before setting timestamp since the backend peer doesn't expect this field
+      dataChannel.send(JSON.stringify(message));
+
+      // if guard just in case the timestamp exists by miracle
+      if (!message.timestamp) {
+        message.timestamp = timestamp;
+      }
+
+      setEvents((prev) => [message, ...prev]);
+    } else {
+      console.error(
+        "Failed to send message - no data channel available",
+        message,
+      );
+    }
+  }
+
+  useEffect(() => {
+    if (dataChannel) {
+      // Append new server events to the list
+      dataChannel.addEventListener("message", (e: MessageEvent) => {
+        const event: RealtimeEvent = JSON.parse(e.data);
+        if (!event.timestamp) {
+          event.timestamp = new Date().toLocaleTimeString();
+        }
+
+        setEvents((prev) => [event, ...prev]);
+      });
+
+      // Set session active when the data channel is opened
+      dataChannel.addEventListener("open", () => {
+        setIsSessionActive(true);
+        setEvents([]);
+      });
+    }
+  }, [dataChannel]);
+
+  useEffect(() => {
+    if (!events || events.length === 0) return;
+
+    const firstEvent = events[events.length - 1];
+    if (!sessionUpdated && firstEvent.type === "session.created") {
+
+      sessionData.session.instructions = buildInstructions({ checkpoints, currentCheckpointIndex });
+
+      sendClientEvent(sessionData);
+      console.log("session created");
       //   sendClientEvent({
       //     type: "response.create",
       //     response: {
       //       instructions: `Say hi..`,
       //     },
       //   });
-        setSessionUpdated(true);
-      }
-  
-      const mostRecentEvent = events[0];
-      console.log(mostRecentEvent);
-      if (
-        mostRecentEvent.type === "response.done" &&
-        mostRecentEvent.response?.output
-      ) {
-          
-        mostRecentEvent.response.output.forEach((output: any) => {
-          if (output.type === "function_call") {
-              
-            switch (output.name) {
-              case "display_explanation_text":
-                setCurrentUI("explanation");
-                break;
-              case "display_multiple_choice":
-                setCurrentUI("multiple_choice");
-                break;
-              case "end_conversation":
-                stopSession();
-                setConversationMode(false);
-                break;
-              default:
-                setCurrentUI("empty");
-                break;
-            }
-            setRecentFunctionCallEvent(output);
+      setSessionUpdated(true);
+    }
+
+    const mostRecentEvent = events[0];
+    console.log(mostRecentEvent);
+    if (
+      mostRecentEvent.type === "response.done" &&
+      mostRecentEvent.response?.output
+    ) {
+
+      mostRecentEvent.response.output.forEach((output: any) => {
+        if (output.type === "function_call") {
+
+          switch (output.name) {
+            case "display_explanation_text":
+              setCurrentUI("explanation");
+              break;
+            case "display_multiple_choice":
+              setCurrentUI("multiple_choice");
+              break;
+            case "end_conversation":
+              stopSession();
+              setConversationMode(false);
+              break;
+            default:
+              setCurrentUI("empty");
+              break;
+          }
+          setRecentFunctionCallEvent(output);
           //   sendClientEvent({
           //     type: "response.create",
           //     //   response: {
@@ -301,57 +301,57 @@ export default function Whiteboard( {status, setStatus, conversationMode, setCon
           //     //   },
           //     event_id: "null",
           //   });
-            
-              setTimeout(() => {
-                sendClientEvent({
-                  type: "response.create",
-                  // response: {
-                  //   instructions: `
-                  //   ask for feedback about the color palette - don't repeat 
-                  //   the colors, just ask if they like the colors.
-                  // `,
-                  // },
-                  event_id: "null",
-                });
-              }, 20);
-            
-          }
-        });
-      }
-    }, [events]);
-    
-    function getUI() {
-        switch (currentUI) {
-          case "explanation":
-            return <Explanation functionCallOutput={recentFunctionCallEvent!}/>;
-          case "multiple_choice":
-            return <MultipleChoice functionCallOutput={recentFunctionCallEvent!}/>;
-          default:
-            return <div>Empty</div>;
-        }
-      }
 
-    
-    useEffect(() => {
-        if (conversationMode){
-            console.log("Starting real time chat");
-            startSession();
-        }
-    }, [conversationMode]);
+          setTimeout(() => {
+            sendClientEvent({
+              type: "response.create",
+              // response: {
+              //   instructions: `
+              //   ask for feedback about the color palette - don't repeat 
+              //   the colors, just ask if they like the colors.
+              // `,
+              // },
+              event_id: "null",
+            });
+          }, 20);
 
-    function handleEndChat() {
-        setConversationMode(false);
+        }
+      });
     }
-    return (
-        <div className='absolute bg-gray-200 w-2/3 z-10'>
-            <h1>Whiteboard</h1>
-            {conversationMode && (
-                <div>
-                    <h1>Real time chat starting...</h1>
-                    <button onClick={handleEndChat}>End Chat</button>
-                </div>
-            )}
-            {getUI()}
+  }, [events]);
+
+  function getUI() {
+    switch (currentUI) {
+      case "explanation":
+        return <Explanation functionCallOutput={recentFunctionCallEvent!} />;
+      case "multiple_choice":
+        return <MultipleChoice functionCallOutput={recentFunctionCallEvent!} />;
+      default:
+        return <div>Empty</div>;
+    }
+  }
+
+
+  useEffect(() => {
+    if (conversationMode) {
+      console.log("Starting real time chat");
+      startSession();
+    }
+  }, [conversationMode]);
+
+  function handleEndChat() {
+    setConversationMode(false);
+  }
+  return (
+    <div className='absolute bg-gray-200 w-2/3 z-10'>
+      <h1>Whiteboard</h1>
+      {conversationMode && (
+        <div>
+          <h1>Real time chat starting...</h1>
+          <button onClick={handleEndChat}>End Chat</button>
         </div>
-    )
+      )}
+      {getUI()}
+    </div>
+  )
 }
