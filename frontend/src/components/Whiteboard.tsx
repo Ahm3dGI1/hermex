@@ -165,13 +165,11 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     const data = await response.json();
     console.log("Session token response:", data);
 
-    // ✅ Add this check
     if (!data.client_secret || !data.client_secret.value) {
       throw new Error("Missing client_secret in response");
     }
 
     const EPHEMERAL_KEY = data.client_secret.value;
-    // Create a peer connection
     const pc = new RTCPeerConnection();
 
     // Set up to play remote audio from the model
@@ -417,7 +415,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
   }
 
   function getUI() {
-    
+
     switch (currentUI) {
       case "explanation":
         return <ExplanationComponent functionCallOutput={recentFunctionCallEvent!} />;
@@ -428,7 +426,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       case "openended_question":
         return <OpenEndedQuestion functionCallOutput={recentFunctionCallEvent!} />;
       default:
-        return <div></div>;
+        return <div>Checkpoint</div>;
     }
   }
 

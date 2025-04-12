@@ -116,8 +116,8 @@ export default function Screen({
 
 
   const opts = {
-    height: '630',
-    width: '1120',
+    height: '540',
+    width: '960',
     playerVars: {
       autoplay: 0,
     },
@@ -130,7 +130,7 @@ export default function Screen({
 
         {/* Toggle Screen & Projected Content */}
         <div
-          className={`absolute mx-auto ${isDown ? 'top-[-50px]' : 'top-[-780px]'} duration-300 transition-all`}
+          className={`absolute mx-auto ${isDown ? 'top-[-150px]' : 'top-[-780px]'} duration-300 transition-all`}
         >
           <img
             src="/screenprojector.PNG"
@@ -172,7 +172,7 @@ export default function Screen({
 
           {/* Nested YouTube Player */}
           {videoId && status === 'class' && (
-            <div className="absolute top-[12.5%] left-[48%] transform -translate-x-1/2 w-[1120px] max-w-[90%] z-10">
+            <div className="absolute top-[12.5%] left-[48%] transform -translate-x-1/2 w-[960px] max-w-[90%] z-10 pt-14">
               <YouTube
                 videoId={videoId}
                 opts={opts}
