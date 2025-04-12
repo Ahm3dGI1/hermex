@@ -1,20 +1,15 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ResponseOutput } from '../Types';
 
-interface ExplanationData {
-  title: string;
-  bullets: string[];
-  notes: string;
-}
 
-function AnimatedText({ text, onComplete }: { text: string; onComplete?: () => void }) {
-  const [visibleWords, setVisibleWords] = useState(0);
+function AnimatedText({ text, onComplete }: { text: string, onComplete?: () => void }) {
+  const [visibleWords, setVisibleWords] = useState<number>(0);
   const words = text.split(' ');
 
   useEffect(() => {
     if (visibleWords < words.length) {
       const timer = setTimeout(() => {
-        setVisibleWords((prev) => prev + 1);
+        setVisibleWords(prev => prev + 1);
       }, 40);
       return () => clearTimeout(timer);
     } else if (onComplete) {
@@ -25,9 +20,15 @@ function AnimatedText({ text, onComplete }: { text: string; onComplete?: () => v
   return (
     <>
       {words.map((word, index) => (
-        <span key={index} className="inline-block transition-opacity duration-300" style={{ opacity: index < visibleWords ? 1 : 0 }}>
-          {word}{' '}
-        </span>
+        <React.Fragment key={index}>
+          <span
+            className="inline-block transition-opacity duration-300"
+            style={{ opacity: index < visibleWords ? 1 : 0 }}
+          >
+            {word}
+          </span>
+          {index < words.length - 1 ? ' ' : ''}
+        </React.Fragment>
       ))}
     </>
   );
@@ -35,56 +36,57 @@ function AnimatedText({ text, onComplete }: { text: string; onComplete?: () => v
 
 function Title({ title }: { title: string }) {
   return (
-    <div className="text-[40px] text-white font-bold underline mb-4">
+    <div className="text-[50px] text-white underline">
       <h1>{title}</h1>
     </div>
   );
 }
 
-function BulletPoints({ bullets }: { bullets: string[] }) {
-  const [visibleBullets, setVisibleBullets] = useState(1);
-  const [completedBullets, setCompletedBullets] = useState(0);
+function Headers({ bullets }: { bullets: string[] }) {
+  const [visibleBullets, setVisibleBullets] = useState<number>(1);
+  const [completedBullets, setCompletedBullets] = useState<number>(0);
 
   const handleBulletComplete = () => {
-    setCompletedBullets((prev) => prev + 1);
+    setCompletedBullets(prev => prev + 1);
     if (visibleBullets < bullets.length) {
-      setVisibleBullets((prev) => prev + 1);
+      setVisibleBullets(prev => prev + 1);
     }
   };
 
   return (
-    <ul className="list-disc text-white space-y-3 text-lg pl-6 w-[350px]">
-      {bullets.map((bullet, i) => (
-        <li
-          key={i}
-          className="transition-opacity duration-300"
-          style={{
-            opacity: i < visibleBullets ? 1 : 0,
-            visibility: i < visibleBullets ? 'visible' : 'hidden',
-          }}
-        >
-          {i < visibleBullets && (
-            <AnimatedText text={bullet} onComplete={i === visibleBullets - 1 ? handleBulletComplete : undefined} />
-          )}
-        </li>
-      ))}
-    </ul>
+    <div className="relative top-[7px] p-5 w-[300px]">
+      <ul className="list-disc text-sm md:text-base xl:text-xl text-white space-y-2 leading-relaxed">
+        {bullets.map((point, index) => (
+          <li 
+            key={index} 
+            className="break-words transition-opacity duration-300"
+            style={{ 
+              opacity: index < visibleBullets ? 1 : 0,
+              visibility: index < visibleBullets ? 'visible' : 'hidden'
+            }}
+          >
+            {index < visibleBullets && (
+              <AnimatedText 
+                text={point} 
+                onComplete={index === visibleBullets - 1 ? handleBulletComplete : undefined}
+              />
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
-function Notes({ notes }: { notes: string }) {
-  return (
-    <div className="text-white text-lg ml-10 w-[600px] leading-relaxed">
-      <AnimatedText text={notes} />
-    </div>
-  );
+interface ExplanationData {
+  title: string;
+  bullets: string[];
 }
 
 export default function ExplanationComponent({ functionCallOutput }: { functionCallOutput: ResponseOutput }) {
   const [data, setData] = useState<ExplanationData>({
     title: '',
-    bullets: [],
-    notes: '',
+    bullets: []
   });
 
   useEffect(() => {
@@ -92,21 +94,19 @@ export default function ExplanationComponent({ functionCallOutput }: { functionC
       const parsed: ExplanationData = JSON.parse(functionCallOutput.arguments || '{}');
       setData({
         title: parsed.title || '',
-        bullets: Array.isArray(parsed.bullets) ? parsed.bullets : [],
-        notes: parsed.notes || '',
+        bullets: Array.isArray(parsed.bullets) ? parsed.bullets : []
       });
     } catch (err) {
       console.error('Error parsing explanation data:', err);
-      setData({ title: '', bullets: [], notes: '' }); // fallback to prevent crash
+      setData({ title: '', bullets: [] }); // fallback to prevent crash
     }
   }, [functionCallOutput]);
 
   return (
-    <div className="p-8 bg-[#1b1e28] rounded-lg max-w-5xl mx-auto shadow-md">
+    <div className="relative w-full">
       <Title title={data.title} />
-      <div className="flex flex-row gap-10">
-        {data.bullets.length > 0 && <BulletPoints bullets={data.bullets} />}
-        {data.notes && <Notes notes={data.notes} />}
+      <div className="w-full">
+        <Headers bullets={data.bullets} />
       </div>
     </div>
   );
