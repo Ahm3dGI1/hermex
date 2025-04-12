@@ -30,6 +30,7 @@ Transcription:
   `;
 }
 
+
 export default function Whiteboard({ status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex }: { status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number }) {
   const [currentUI, setCurrentUI] = useState<UIType>('empty');
 
