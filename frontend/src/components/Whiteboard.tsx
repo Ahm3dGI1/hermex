@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { getBackendAPI } from '../utils/backendApi.tsx';
 import { Checkpoint, RealtimeEvent, ResponseOutput, Status } from './Types';
-import Explanation from './whiteboard-elements/Explanation';
+import DetailedExplanationComponent from './whiteboard-elements/DetailedExplanation';
+import ExplanationComponent from './whiteboard-elements/Explanation.tsx';
 import MultipleChoice from './whiteboard-elements/MultipleChoice';
-type UIType = 'empty' | 'explanation' | 'multiple_choice' | 'buttons';
+type UIType = 'empty' | 'explanation' | 'multiple_choice' | 'buttons' | 'detailed_explanation';
 
 
 
@@ -68,12 +69,19 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
                 type: "string",
                 description: "The title of the explanation",
               },
-              text: {
-                type: "string",
-                description: "Very concise one sentence explanation to display",
+              bullets: {
+                type: "array",
+                description: "3-4 bulletpoints to display",
+                items: {
+                  type: "string",
+                },
               },
+              notes: {
+                type: "string",
+                description: "Optionally, additional detailed notes to display",
+              }
             },
-            required: ["title", "text"],
+            required: ["title", "bullets"],
           },
         },
         {
@@ -317,7 +325,11 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
 
           switch (output.name) {
             case "display_explanation_text":
-              setCurrentUI("explanation");
+              if (output.arguments.notes) {
+                setCurrentUI("detailed_explanation");
+              } else {
+                setCurrentUI("explanation");
+              }
               setRecentFunctionCallEvent(output);
               setTimeout(() => {
                 sendClientEvent({
@@ -392,7 +404,9 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
   function getUI() {
     switch (currentUI) {
       case "explanation":
-        return <Explanation functionCallOutput={recentFunctionCallEvent!} />;
+        return <ExplanationComponent functionCallOutput={recentFunctionCallEvent!} />;
+      case "detailed_explanation":
+        return <DetailedExplanationComponent functionCallOutput={recentFunctionCallEvent!} />;
       case "multiple_choice":
         return <MultipleChoice functionCallOutput={recentFunctionCallEvent!} handleChoiceClick={handleChoiceClick} />;
       default:
