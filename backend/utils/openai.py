@@ -6,6 +6,28 @@ load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+from pydantic import BaseModel, Field
+from typing import List
+
+
+class Checkpoint(BaseModel):
+    time: float
+    question: str
+    choices: List[str]
+    answer: str
+    explanation: str
+
+
+class FinalReview(BaseModel):
+    summary: str
+    review_questions: List[str]
+
+
+class TranscriptCheckpoints(BaseModel):
+    checkpoints: List[Checkpoint] 
+    final: FinalReview
+
+
 def stt(audio_path: str):
     print("Starting STT...")
     audio_file = open(audio_path, "rb")
@@ -33,6 +55,7 @@ Your goal is to return a JSON with two keys: `checkpoints` and `final`.
    - Add `choices`: list of 4 options.
    - Add `answer`: correct choice letter (A/B/C/D).
    - Add `explanation`: why that answer is correct.
+   - The check points should be evenly distributed across the transcript.
 
 2. `final` should contain:
    - `summary`: a paragraph summarizing the whole content.
@@ -48,12 +71,13 @@ Segments:
         """
     }
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
+    completion = client.beta.chat.completions.parse(
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": "You are a helpful educational assistant that only returns JSON."},
             prompt
-        ]
+        ],
+        response_format=TranscriptCheckpoints,
     )
 
-    return response.choices[0].message.content
+    return completion.choices[0].message.parsed
