@@ -45,32 +45,23 @@ class QuestionRequest(BaseModel):
 def preprocess_video(data: PreprocessRequest):
     try:
         session_id = str(uuid.uuid4())
-        
-        audio_file = download_audio(data.youtube_link, session_id)
 
+        audio_file = download_audio(data.youtube_link, session_id)
         transcript_verbose = stt(audio_file)
         transcript_text = transcript_verbose.text.strip()
         transcript_segments = clean_transcript_segments(transcript_verbose.segments)
 
         ai_response = generate_ai_questions_and_summary(transcript_text, transcript_segments)
+        checkpoints = [cp.model_dump() for cp in ai_response.checkpoints]
 
-        doc_ref = db.collection("sessions").document(session_id)
-        doc_ref.set({
-            "transcript": transcript_text,
-            "segments": transcript_segments,
-            "checkpoints": [cp.model_dump() for cp in ai_response.checkpoints],
-            "summary": ai_response.final.summary,
-            "review_questions": ai_response.final.review_questions,
-        })
-
-        checkpoint_times = sorted([cp.time for cp in ai_response.checkpoints])
+        checkpoint_times = sorted([cp["time"] for cp in checkpoints])
         last_segment_end = transcript_segments[-1]["end"] if transcript_segments else 0
         checkpoint_times.append(last_segment_end)
 
         checkpoints_context = []
         for i in range(len(checkpoint_times) - 1):
-            start_time = 0 if i == 0 else checkpoint_times[i - 1]
-            end_time = checkpoint_times[i]
+            start_time = 0 if i == 0 else checkpoint_times[i]
+            end_time = checkpoint_times[i + 1]
 
             context = " ".join([
                 segment["text"]
@@ -79,17 +70,29 @@ def preprocess_video(data: PreprocessRequest):
             ])
             checkpoints_context.append(context.strip())
 
+        for idx, checkpoint in enumerate(checkpoints):
+            checkpoint["segment"] = checkpoints_context[idx]
+
+        doc_ref = db.collection("sessions").document(session_id)
+        doc_ref.set({
+            "transcript": transcript_text,
+            "segments": transcript_segments,
+            "checkpoints": checkpoints,
+            "summary": ai_response.final.summary,
+            "review_questions": ai_response.final.review_questions,
+        })
 
         return {
             "session_id": session_id,
             "transcript": transcript_text,
-            "contex": checkpoints_context,
-            "checkpoints": ai_response.checkpoints,
+            "checkpoints": checkpoints,
             "summary": ai_response.final.summary,
             "review_questions": ai_response.final.review_questions,
         }
+
     except Exception as e:
         return {"error": str(e)}
+
 
 @app.get("/api/transcript/{session_id}/{start_time}/{end_time}")
 def get_transcript(session_id: str, start_time: float, end_time: float):
