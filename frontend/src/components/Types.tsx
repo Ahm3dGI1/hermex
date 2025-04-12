@@ -1,7 +1,7 @@
 type Status = 'waitingForInput' | 'processing' | 'class' | 'review' | 'done';
 
 
-type EventType = "response.done" | "session.update" | "session.created" | "response.create";
+type EventType = "response.done" | "session.update" | "session.created" | "response.create" | "session.updated";
 
 export interface Checkpoint {
     time: number;
@@ -87,6 +87,15 @@ interface SessionUpdateEvent extends BaseEvent {
     max_response_output_tokens?: string;
   };
 }
+
+interface SessionUpdatedEvent extends BaseEvent {
+  type: "session.updated";
+  session: {
+    id: string;
+    object: string;
+  };
+}
+
 interface SessionCreatedEvent extends BaseEvent {
   type: "session.created";
   session: {
@@ -120,7 +129,7 @@ interface ResponseCreateEvent extends BaseEvent {
 }
 
 
-type RealtimeEvent = ResponseDoneEvent | SessionUpdateEvent | SessionCreatedEvent | ResponseCreateEvent;
+type RealtimeEvent = ResponseDoneEvent | SessionUpdateEvent | SessionCreatedEvent | ResponseCreateEvent | SessionUpdatedEvent;
 
 export type { RealtimeEvent, ResponseCreateEvent, ResponseDoneEvent, ResponseOutput, SessionCreatedEvent, SessionUpdateEvent, Status };
 

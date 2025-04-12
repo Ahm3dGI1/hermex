@@ -18,9 +18,9 @@ const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoint
   return `
   You are AI tutor that uses visual aids to help user learn from Youtube videos.
   Now the video has been paused at the indicated as [Current Checkpoint] checkpoint, and you are asking the user a question regarding the content before this checkpoint.
-  First very concisely remind the user what the previous content was about, then ask the question.
+  First very concisely remind the user what the previous content was about, then ask the question. Make sure that you don't reveal the answer before the question.
   Keep in mind to use to provide visual aids with the tools provided.
-  Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function.
+  Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function.
 
 Transcription:
   ${transcript}
@@ -265,6 +265,14 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       setSessionUpdated(true);
     }
 
+    if (firstEvent.type === "session.updated") {
+      console.log("session updated");
+      sendClientEvent({
+        type: "response.create",
+        event_id: "null",
+      });
+    }
+
     const mostRecentEvent = events[0];
     console.log(mostRecentEvent);
     if (
@@ -278,9 +286,21 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
           switch (output.name) {
             case "display_explanation_text":
               setCurrentUI("explanation");
+              setTimeout(() => {
+                sendClientEvent({
+                  type: "response.create",
+                  event_id: "null",
+                });
+              }, 20);
               break;
             case "display_multiple_choice":
               setCurrentUI("multiple_choice");
+              setTimeout(() => {
+                sendClientEvent({
+                  type: "response.create",
+                  event_id: "null",
+                });
+              }, 20);
               break;
             case "end_conversation":
               stopSession();
@@ -302,18 +322,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
           //     event_id: "null",
           //   });
 
-          setTimeout(() => {
-            sendClientEvent({
-              type: "response.create",
-              // response: {
-              //   instructions: `
-              //   ask for feedback about the color palette - don't repeat 
-              //   the colors, just ask if they like the colors.
-              // `,
-              // },
-              event_id: "null",
-            });
-          }, 20);
+          
 
         }
       });
