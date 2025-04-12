@@ -8,7 +8,7 @@ interface MultipleChoiceData {
   correctAnswer: string;
 }
 
-const MultipleChoice = ({ functionCallOutput }: { functionCallOutput: ResponseOutput }) => {
+const MultipleChoice = ({ functionCallOutput, handleChoiceClick }: { functionCallOutput: ResponseOutput, handleChoiceClick: (choice: string, call_id: string) => void }) => {
   const [quiz, setQuiz] = useState<MultipleChoiceData>();
 
   useEffect(() => {
@@ -25,6 +25,7 @@ const MultipleChoice = ({ functionCallOutput }: { functionCallOutput: ResponseOu
           <button
             key={index}
             className="w-full text-left p-2 rounded hover:bg-gray-100 border border-gray-200"
+            onClick={() => handleChoiceClick(option, functionCallOutput.call_id || "")}
           >
             {option}
           </button>

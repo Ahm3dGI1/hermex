@@ -1,13 +1,23 @@
 type Status = 'waitingForInput' | 'processing' | 'class' | 'review' | 'done';
 
 
-type EventType = "response.done" | "session.update" | "session.created" | "response.create" | "session.updated";
+type EventType = "response.done" | "session.update" | "session.created" | "response.create" | "session.updated" | "conversation.item.create";
 
 export interface Checkpoint {
     time: number;
     question: string;
     segment: string;
   }
+
+interface ConversationItemCreateEvent extends BaseEvent {
+  type: "conversation.item.create";
+  item: {
+    type: "function_call_output";
+    call_id: string;
+    output: string;
+  };
+}
+
 
 interface ResponseOutput {
   type: "function_call" | "message" | "function_call_output";
@@ -129,7 +139,7 @@ interface ResponseCreateEvent extends BaseEvent {
 }
 
 
-type RealtimeEvent = ResponseDoneEvent | SessionUpdateEvent | SessionCreatedEvent | ResponseCreateEvent | SessionUpdatedEvent;
+type RealtimeEvent = ResponseDoneEvent | SessionUpdateEvent | SessionCreatedEvent | ResponseCreateEvent | SessionUpdatedEvent | ConversationItemCreateEvent;
 
-export type { RealtimeEvent, ResponseCreateEvent, ResponseDoneEvent, ResponseOutput, SessionCreatedEvent, SessionUpdateEvent, Status };
+export type { ConversationItemCreateEvent, RealtimeEvent, ResponseCreateEvent, ResponseDoneEvent, ResponseOutput, SessionCreatedEvent, SessionUpdateEvent, Status };
 

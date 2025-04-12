@@ -16,11 +16,11 @@ const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoint
   console.log("Transcript sent to the model:")
   console.log(transcript);
   return `
-  You are AI tutor that uses visual aids to help user learn from Youtube videos.
+  You are AI tutor that uses black board to help user learn from Youtube videos.
   Now the video has been paused at the indicated as [Current Checkpoint] checkpoint, and you are asking the user a question regarding the content before this checkpoint.
   First very concisely remind the user what the previous content was about, then ask the question. Make sure that you don't reveal the answer before the question.
-  Keep in mind to use to provide visual aids with the tools provided.
-  Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function.
+  Keep in mind to use the tools to draw on the blackboard for visual aids.
+  Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function. Do not end the conversation without user's clear intent.
 
 Transcription:
   ${transcript}
@@ -34,7 +34,7 @@ const sessionData: SessionUpdateEvent = {
       {
         type: "function",
         name: "display_explanation_text",
-        description: 'Display explanation text to supplement your explanation. Run this first before you start explaning',
+        description: 'Display explanation text to supplement your explanation. Run this first before you start explaning.',
         parameters: {
           type: "object",
           strict: true,
@@ -54,7 +54,7 @@ const sessionData: SessionUpdateEvent = {
       {
         type: "function",
         name: "display_multiple_choice",
-        description: "Display multiple choice question. Run this first before you start saying the question.",
+        description: "Display multiple choice question. Before running, very briefly tell the use that you are going to ask a question. After that run this function and then explain the question.",
         parameters: {
           type: "object",
           strict: true,
@@ -85,7 +85,7 @@ const sessionData: SessionUpdateEvent = {
       {
         type: "function",
         name: "end_conversation",
-        description: "End the current conversation. Just briefly say goodbye to the user. (User will go back to the video)",
+        description: "This will end the current conversation. Just briefly say goodbye to the user. (User will go back to the video)",
         parameters: {
           type: "object",
           strict: true,
@@ -269,7 +269,6 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       console.log("session updated");
       sendClientEvent({
         type: "response.create",
-        event_id: "null",
       });
     }
 
@@ -289,7 +288,6 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
               setTimeout(() => {
                 sendClientEvent({
                   type: "response.create",
-                  event_id: "null",
                 });
               }, 20);
               break;
@@ -298,7 +296,6 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
               setTimeout(() => {
                 sendClientEvent({
                   type: "response.create",
-                  event_id: "null",
                 });
               }, 20);
               break;
@@ -329,17 +326,6 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     }
   }, [events]);
 
-  function getUI() {
-    switch (currentUI) {
-      case "explanation":
-        return <Explanation functionCallOutput={recentFunctionCallEvent!} />;
-      case "multiple_choice":
-        return <MultipleChoice functionCallOutput={recentFunctionCallEvent!} />;
-      default:
-        return <div>Empty</div>;
-    }
-  }
-
 
   useEffect(() => {
     if (conversationMode) {
@@ -350,6 +336,34 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
 
   function handleEndChat() {
     setConversationMode(false);
+  }
+
+  const handleChoiceClick = (choice: string, call_id: string) => {
+    sendClientEvent({
+      type: "conversation.item.create",
+      item: {
+        type: "function_call_output",
+        call_id: call_id,
+        output: `The user has selected ${choice} on the blackboard. `,
+      }
+    });
+    sendClientEvent({
+      type: "response.create",
+      response: {
+        instructions: `Give feedback about the user's choice.`,
+      },
+    });
+  }
+
+  function getUI() {
+    switch (currentUI) {
+      case "explanation":
+        return <Explanation functionCallOutput={recentFunctionCallEvent!} />;
+      case "multiple_choice":
+        return <MultipleChoice functionCallOutput={recentFunctionCallEvent!} handleChoiceClick={handleChoiceClick} />;
+      default:
+        return <div>Empty</div>;
+    }
   }
   return (
     <div className='absolute bg-gray-200 w-2/3 z-10'>
