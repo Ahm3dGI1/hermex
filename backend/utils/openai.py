@@ -50,7 +50,6 @@ Segments:
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        response_format="json",
         messages=[
             {"role": "system", "content": "You are a helpful educational assistant that only returns JSON."},
             prompt
