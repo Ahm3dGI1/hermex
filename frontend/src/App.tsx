@@ -6,12 +6,24 @@ import { useYoutubePlayer } from './hooks/youtube-player.tsx';
 
 function App() {
   const handleTimeUpdate = (time: number) => {
-    console.log("Current Time:", time);
+    if (
+      checkpoints.length > 0 &&
+      currentCheckpointIndex < checkpoints.length &&
+      time >= checkpoints[currentCheckpointIndex]
+    ) {
+      pause(); // pause the video
+      console.log("Paused at checkpoint:", checkpoints[currentCheckpointIndex]);
+      setCurrentCheckpointIndex((prev) => prev + 1);
+    }
   }
 
   const [youtubeLink, setYoutubeLink] = useState<string>('');
   const [videoId, setVideoId] = useState<string | null>(null);
   const { play, pause } = useYoutubePlayer(videoId, handleTimeUpdate); // Custom hook to manage YouTube player
+
+  const [checkpoints, setCheckpoints] = useState<number[]>([]);
+  const [currentCheckpointIndex, setCurrentCheckpointIndex] = useState(0);
+
 
 
   const handleInput = async (link: string) => {
@@ -28,6 +40,14 @@ function App() {
         body: JSON.stringify({ youtube_link: link }),
       });
       const data = await response.json();
+
+      const checkpointTimes = data.ai_insights.checkpoints
+        .map((cp: any) => cp.time)
+        .sort((a: number, b: number) => a - b);
+
+      setCheckpoints(checkpointTimes);
+      setCurrentCheckpointIndex(0);
+
       console.log("Preprocessing response:", data);
     } catch (error) {
       console.error("Error during preprocessing:", error);
