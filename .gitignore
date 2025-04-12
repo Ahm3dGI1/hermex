@@ -1,3 +1,9 @@
+venv
+.env
+__pycache__
+
+.temp/
+
 # Logs
 logs
 *.log

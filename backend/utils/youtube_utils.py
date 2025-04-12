@@ -15,9 +15,9 @@ def download_audio(youtube_url: str, session_id: str):
         'quiet': True,
     }
 
-    os.makedirs("downloads", exist_ok=True)
+    os.makedirs(".temp/yt_audio", exist_ok=True)
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([youtube_url])
     
-    return f"downloads/{session_id}.mp3"
+    return f".temp/yt_audio/{session_id}.mp3"
