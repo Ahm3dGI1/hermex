@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Whiteboard from './Whiteboard';
-import Screen from './Screen.tsx';
-import Yap from './Yap';
 import { Checkpoint, Status } from '../components/Types';
+import Screen from './Screen.tsx';
+import Whiteboard from './Whiteboard';
+import Yap from './Yap';
 
 export default function Classroom() {
     // Required props for Screen
@@ -11,6 +11,7 @@ export default function Classroom() {
     const [conversationMode, setConversationMode] = useState(false);
     const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
     const [currentCheckpointIndex, setCurrentCheckpointIndex] = useState(0);
+    const [hermexIsAnimating, setHermexIsAnimating] = useState(false);
 
     return (
         <div className="relative inset-0 w-screen h-screen overflow-hidden font-[Chalkduster]">
@@ -26,6 +27,7 @@ export default function Classroom() {
                     setConversationMode={setConversationMode}
                     checkpoints={checkpoints}
                     currentCheckpointIndex={currentCheckpointIndex}
+                    setHermexIsAnimating={setHermexIsAnimating}
                 />
                 <Screen
                     status={status}
@@ -39,7 +41,7 @@ export default function Classroom() {
                     isDown={isDown}
                     setIsDown={setIsDown}
                 />
-                <Yap isDown={isDown} />
+                <Yap isDown={isDown} isAnimating={hermexIsAnimating} />
             </div>
         </div>
     );

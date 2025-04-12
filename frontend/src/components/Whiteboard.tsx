@@ -34,7 +34,7 @@ Transcription:
 }
 
 
-export default function Whiteboard({ status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex }: { status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number }) {
+export default function Whiteboard({ status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex, setHermexIsAnimating }: { status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number, setHermexIsAnimating: (hermexIsAnimating: boolean) => void }) {
   const [currentUI, setCurrentUI] = useState<UIType>('empty');
 
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -236,6 +236,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     setIsSessionActive(false);
     setDataChannel(null);
     peerConnection.current = null;
+    setCurrentUI('empty');
 
     setEvents([]);
     setSessionUpdated(false);
@@ -360,8 +361,10 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
               }, 20);
               break;
             case "end_conversation":
-              stopSession();
-              setConversationMode(false);
+              setTimeout(() => {
+                stopSession();
+                setConversationMode(false);
+              }, 2000);
               break;
             default:
               setCurrentUI("empty");
