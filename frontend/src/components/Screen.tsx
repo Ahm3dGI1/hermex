@@ -152,9 +152,9 @@ export default function Screen({
 
           {/* Nested Input Field */}
           {!videoId && status !== 'processing' && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[60%] flex justify-between gap-4 z-10">
+            <div className="absolute top-[71%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[60%] flex justify-between gap-4 z-10">
               <input
-                className="flex-1 rounded bg-white border border-gray-300 px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="flex-1 rounded bg-white/80 backdrop-blur-sm border border-[#8F71A3] px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#8F71A3]"
                 type="text"
                 placeholder="Enter a YouTube video link..."
                 value={youtubeLink}
@@ -162,10 +162,10 @@ export default function Screen({
                 onKeyPress={handleKeyPress}
               />
               <button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow"
+                className="backdrop-transparent hover:bg-[#8F71A3]/30 text-[#8F71A3] font-semibold px-6 py-2 rounded transition-all duration-300 border-2 border-[#8F71A3]"
                 onClick={() => handleInput(youtubeLink.trim())}
               >
-                Start Class
+                Enter Class
               </button>
             </div>
           )}
