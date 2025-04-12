@@ -29,13 +29,10 @@ app.add_middleware(
 # Init Firebase
 if os.getenv("ENV") == "local":
     cred = credentials.Certificate("firebase_credentials.json")
-else:
-    cred_str = os.getenv("FIREBASE_CREDENTIALS_JSON")
-    if cred_str:
-        cred_dict = json.loads(cred_str)
-        cred = credentials.Certificate(cred_dict)
+    firebase_admin.initialize_app(cred)
 
-firebase_admin.initialize_app(cred)
+else:
+    firebase_admin.initialize_app()
 db = firestore.client()
 
 
