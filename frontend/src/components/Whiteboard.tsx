@@ -427,7 +427,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       case "openended_question":
         return <OpenEndedQuestion functionCallOutput={recentFunctionCallEvent!} />;
       default:
-        return <div>Checkpoint</div>;
+        return <div></div>;
     }
   }
 
@@ -435,9 +435,29 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     <div className="mx-auto mt-[100px] ml-[300px] w-[1050px] h-[600px]">
       {getUI()}
       {conversationMode && (
-        <div className="flex mt-[500px] items-center justify-center gap-4 w-full">
-          <button onClick={handleEndChat} className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors w-48"
-          >End Chat</button>
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex items-center justify-center">
+          <button 
+            onClick={handleEndChat} 
+            className="group px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-lg font-semibold rounded-full 
+            shadow-lg hover:shadow-xl hover:scale-105 hover:from-red-600 hover:to-red-700 
+            transition-all duration-300 ease-in-out transform active:scale-95 flex items-center gap-2"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-6 w-6 transform rotate-[135deg] group-hover:-translate-y-px transition-transform" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" 
+              />
+            </svg>
+            End Chat
+          </button>
         </div>
       )}
     </div>

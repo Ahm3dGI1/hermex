@@ -116,8 +116,8 @@ export default function Screen({
 
 
   const opts = {
-    height: '390',
-    width: '640',
+    height: '630',
+    width: '1120',
     playerVars: {
       autoplay: 0,
     },
@@ -130,7 +130,7 @@ export default function Screen({
 
         {/* Toggle Screen & Projected Content */}
         <div
-          className={`absolute mx-auto ${isDown ? 'top-[-150px]' : 'top-[-780px]'} duration-300 transition-all`}
+          className={`absolute mx-auto ${isDown ? 'top-[-50px]' : 'top-[-780px]'} duration-300 transition-all`}
         >
           <img
             src="/screenprojector.PNG"
@@ -172,7 +172,7 @@ export default function Screen({
 
           {/* Nested YouTube Player */}
           {videoId && status === 'class' && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[720px] max-w-[90%] z-10">
+            <div className="absolute top-[12.5%] left-[48%] transform -translate-x-1/2 w-[1120px] max-w-[90%] z-10">
               <YouTube
                 videoId={videoId}
                 opts={opts}
@@ -181,14 +181,6 @@ export default function Screen({
                 }}
                 onEnd={handleVideoEnd}
               />
-              <div className="mt-4 flex justify-center gap-4">
-                <button
-                  onClick={() => pause()}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-                >
-                  Pause
-                </button>
-              </div>
             </div>
           )}
         </div>
