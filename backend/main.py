@@ -1,16 +1,12 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
-
-import firebase_admin
-from firebase_admin import credentials, firestore
-
 import uuid
 
+import firebase_admin
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from firebase_admin import credentials, firestore
+from pydantic import BaseModel
+from utils.openai import generate_ai_questions_and_summary, stt
 from utils.youtube_utils import download_audio
-
-from utils.openai import stt
-from utils.openai import generate_ai_questions_and_summary
 
 app = FastAPI()
 

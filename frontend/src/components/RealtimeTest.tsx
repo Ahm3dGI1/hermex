@@ -33,41 +33,32 @@ const sessionData: RealtimeEvent = {
       {
         type: "function",
         name: "display_multiple_choice",
-        description: "Display multiple choice questions. Run this first before you start saying the questions.",
+        description: "Display multiple choice question. Run this first before you start saying the question.",
         parameters: {
           type: "object",
           strict: true,
           properties: {
             title: {
-              type: "string", 
-              description: "The title of the quiz section"
+              type: "string",
+              description: "The title of the quiz"
             },
-            quizzes: {
-              type: "array",
+            question: {
+              type: "string",
+              description: "The question text"
+            },
+            options: {
+              type: "array", 
               items: {
-                type: "object",
-                properties: {
-                  question: {
-                    type: "string",
-                    description: "The question text"
-                  },
-                  options: {
-                    type: "array",
-                    items: {
-                      type: "string"
-                    },
-                    description: "Array of possible answer options"
-                  },
-                  correctAnswer: {
-                    type: "string",
-                    description: "The correct answer option"
-                  }
-                },
-                required: ["question", "options", "correctAnswer"]
-              }
+                type: "string"
+              },
+              description: "Array of possible answer options"
+            },
+            correctAnswer: {
+              type: "string",
+              description: "The correct answer option"
             }
           },
-          required: ["title", "quizzes"]
+          required: ["title", "question", "options", "correctAnswer"]
         }
       }
       ],

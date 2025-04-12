@@ -1,6 +1,12 @@
+type Status = 'waitingForInput' | 'processing' | 'class' | 'review' | 'done';
+
 
 type EventType = "response.done" | "session.update" | "session.created" | "response.create";
 
+export interface Checkpoint {
+    time: number;
+    question: string;
+  }
 
 interface ResponseOutput {
   type: "function_call" | "message" | "function_call_output";
@@ -115,5 +121,5 @@ interface ResponseCreateEvent extends BaseEvent {
 
 type RealtimeEvent = ResponseDoneEvent | SessionUpdatedEvent | SessionCreatedEvent | ResponseCreateEvent;
 
-export type { RealtimeEvent, ResponseCreateEvent, ResponseDoneEvent, ResponseOutput, SessionCreatedEvent, SessionUpdatedEvent };
+export type { RealtimeEvent, ResponseCreateEvent, ResponseDoneEvent, ResponseOutput, SessionCreatedEvent, SessionUpdatedEvent, Status };
 
