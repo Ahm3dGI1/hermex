@@ -135,16 +135,16 @@ def get_transcript(session_id: str, start_time: float, end_time: float):
 
 @app.post("/api/session-token")
 def get_openai_client_secret(payload: dict):
-    REALTIME_API_KEY = os.getenv("REALTIME_API_KEY")
-    print(REALTIME_API_KEY)
-    if not REALTIME_API_KEY:
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    print(OPENAI_API_KEY)
+    if not OPENAI_API_KEY:
         return {"error": "Missing OpenAI API key"}
 
     try:
         response = requests.post(
             "https://api.openai.com/v1/realtime/sessions",
             headers={
-                "Authorization": f"Bearer {REALTIME_API_KEY}",
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
                 "Content-Type": "application/json"
             },
             json=payload
