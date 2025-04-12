@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import preprocess
 
 app = FastAPI()
 
@@ -13,4 +12,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(preprocess.router, prefix="/api/preprocess")
+app.include_router()
