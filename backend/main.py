@@ -29,9 +29,13 @@ def clean_transcript_segments(segments: list) -> list[dict]:
         for segment in segments
     ]
 
+session_data = {}
 
 class PreprocessRequest(BaseModel):
     youtube_link: str
+
+class QuestionRequest(BaseModel):
+    question: str
 
 @app.post("/api/preprocess")
 def preprocess_video(data: PreprocessRequest):
@@ -45,10 +49,24 @@ def preprocess_video(data: PreprocessRequest):
 
     ai_response = generate_ai_questions_and_summary(transcript_text, transcript_segments)
 
-    return {
-        "session_id": session_id,
+    session_data[session_id] = {
         "transcript": transcript_text,
+        "segments": transcript_segments,
         "checkpoints": ai_response.checkpoints,
         "summary": ai_response.final.summary,
         "review_questions": ai_response.final.review_questions,
     }
+
+    return session_data[session_id]
+
+
+@app.get("/api/transcript/{session_id}")
+def get_transcript(session_id: str):
+    if session_id in session_data:
+        return session_data[session_id]
+    else:
+        return {"error": "Session not found"}
+
+@app.post("/api/realtime_conversation")
+def realtime_conversation(data: QuestionRequest):
+    return {"response": f"You asked: {data.question}"}
