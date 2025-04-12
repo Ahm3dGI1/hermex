@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Checkpoint, RealtimeEvent, ResponseOutput, SessionUpdateEvent, Status } from './Types.tsx';
-import Explanation from './whiteboard-elements/Explanation.tsx';
-import MultipleChoice from './whiteboard-elements/MultipleChoice.tsx';
 import { getBackendAPI } from '../utils/backendApi.tsx';
+import { Checkpoint, RealtimeEvent, ResponseOutput, Status } from './Types';
+import Explanation from './whiteboard-elements/Explanation';
+import MultipleChoice from './whiteboard-elements/MultipleChoice';
 type UIType = 'empty' | 'explanation' | 'multiple_choice' | 'buttons';
 
 
@@ -15,11 +15,11 @@ const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoint
       transcript += "\n[Previous Checkpoint]\nQuestion asked:" + checkpoints[i].question + "\n\n";
     }
   }
-  transcript += "\n[Current Checkpoint]\nQuestion you should ask in this session:" + checkpoints[currentCheckpointIndex].question + "\n\n";
+  transcript += "\n[Current Checkpoint]\nQuestion you should ask in this session:\n" + checkpoints[currentCheckpointIndex].question + "\n\n";
   console.log("Transcript sent to the model:")
   console.log(transcript);
   return `
-  You are AI tutor that uses black board to help user learn from Youtube videos.
+  You are AI tutor that uses black board to help user learn from Youtube videos. You speak English only.
   Now the video has been paused at the indicated as [Current Checkpoint] checkpoint, and you are asking the user a question regarding the content before this checkpoint.
   First very concisely remind the user what the previous content was about, then ask the question. Make sure that you don't reveal the answer before the question.
   Keep in mind to use the tools to draw on the blackboard for visual aids.
@@ -29,77 +29,6 @@ Transcription:
   ${transcript}
   `;
 }
-const sessionData: SessionUpdateEvent = {
-  type: "session.update",
-  session: {
-    instructions: "You are helpful assistant, that uses visual aids to explain things. You speak English.", // This must be updated based on the checkpoint
-    tools: [
-      {
-        type: "function",
-        name: "display_explanation_text",
-        description: 'Display explanation text to supplement your explanation. Run this first before you start explaning.',
-        parameters: {
-          type: "object",
-          strict: true,
-          properties: {
-            title: {
-              type: "string",
-              description: "The title of the explanation",
-            },
-            text: {
-              type: "string",
-              description: "Very concise one sentence explanation to display",
-            },
-          },
-          required: ["title", "text"],
-        },
-      },
-      {
-        type: "function",
-        name: "display_multiple_choice",
-        description: "Display multiple choice question. Before running, very briefly tell the use that you are going to ask a question. After that run this function and then explain the question.",
-        parameters: {
-          type: "object",
-          strict: true,
-          properties: {
-            title: {
-              type: "string",
-              description: "The title of the quiz"
-            },
-            question: {
-              type: "string",
-              description: "The question text"
-            },
-            options: {
-              type: "array",
-              items: {
-                type: "string"
-              },
-              description: "Array of possible answer options"
-            },
-            correctAnswer: {
-              type: "string",
-              description: "The correct answer option"
-            }
-          },
-          required: ["title", "question", "options", "correctAnswer"]
-        }
-      },
-      {
-        type: "function",
-        name: "end_conversation",
-        description: "This will end the current conversation. Just briefly say goodbye to the user. (User will go back to the video)",
-        parameters: {
-          type: "object",
-          strict: true,
-          properties: {},
-          required: []
-        }
-      }
-    ],
-    tool_choice: "auto",
-  },
-};
 
 export default function Whiteboard({ status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex }: { status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number }) {
   const [currentUI, setCurrentUI] = useState<UIType>('empty');
@@ -120,11 +49,83 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     // const tokenResponse = await fetch("/token");
     // const data = await tokenResponse.json();
     const apiurl = await getBackendAPI();
+
+    const payload = {
+      model: "gpt-4o-realtime-preview-2024-12-17",
+      voice: "verse",
+      instructions: buildInstructions({ checkpoints, currentCheckpointIndex }),
+      tools: [
+        {
+          type: "function",
+          name: "display_explanation_text",
+          description: 'Display explanation text to supplement your explanation. After running this, briefly explain what you just wrote on the board.',
+          parameters: {
+            type: "object",
+            strict: true,
+            properties: {
+              title: {
+                type: "string",
+                description: "The title of the explanation",
+              },
+              text: {
+                type: "string",
+                description: "Very concise one sentence explanation to display",
+              },
+            },
+            required: ["title", "text"],
+          },
+        },
+        {
+          type: "function",
+          name: "display_multiple_choice",
+          description: "Display multiple choice question. Run this before you ask the question.",
+          parameters: {
+            type: "object",
+            strict: true,
+            properties: {
+              title: {
+                type: "string",
+                description: "The title of the quiz"
+              },
+              question: {
+                type: "string",
+                description: "The question text"
+              },
+              options: {
+                type: "array",
+                items: {
+                  type: "string"
+                },
+                description: "Array of possible answer options"
+              },
+              correctAnswer: {
+                type: "string",
+                description: "The correct answer option"
+              }
+            },
+            required: ["title", "question", "options", "correctAnswer"]
+          }
+        },
+        {
+          type: "function",
+          name: "end_conversation",
+          description: "This will end the current conversation. Just briefly say goodbye to the user. (User will go back to the video)",
+          parameters: {
+            type: "object",
+            strict: true,
+            properties: {},
+            required: []
+          }
+        }
+      ],
+      tool_choice: "auto",
+    };
     const response = await fetch(`${apiurl}/session-token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -187,23 +188,45 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     peerConnection.current = pc;
   }
 
+  //   function stopSession() {
+  //     if (dataChannel) {
+  //       dataChannel.close();
+  //     }
+
+  //     if (peerConnection.current) {
+  //       peerConnection.current.getSenders().forEach((sender: RTCRtpSender) => {
+  //         if (sender.track) {
+  //           sender.track.stop();
+  //         }
+  //       });
+  //       peerConnection.current.close();
+  //     }
+
+  //     setIsSessionActive(false);
+  //     setDataChannel(null);
+  //     peerConnection.current = null;
+  //   }
   function stopSession() {
     if (dataChannel) {
       dataChannel.close();
     }
 
+    peerConnection?.current?.getSenders().forEach((sender) => {
+      if (sender.track) {
+        sender.track.stop();
+      }
+    });
+
     if (peerConnection.current) {
-      peerConnection.current.getSenders().forEach((sender: RTCRtpSender) => {
-        if (sender.track) {
-          sender.track.stop();
-        }
-      });
       peerConnection.current.close();
     }
 
     setIsSessionActive(false);
     setDataChannel(null);
     peerConnection.current = null;
+
+    setEvents([]);
+    setSessionUpdated(false);
   }
 
   // Send a message to the model
@@ -213,6 +236,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       message.event_id = message.event_id || crypto.randomUUID();
       // send event before setting timestamp since the backend peer doesn't expect this field
       dataChannel.send(JSON.stringify(message));
+      console.log("message sending", message);
 
       // if guard just in case the timestamp exists by miracle
       if (!message.timestamp) {
@@ -254,28 +278,34 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     const firstEvent = events[events.length - 1];
     if (!sessionUpdated && firstEvent.type === "session.created") {
 
-      sessionData.session.instructions = buildInstructions({ checkpoints, currentCheckpointIndex });
+      //   sessionData.session.instructions = buildInstructions({ checkpoints, currentCheckpointIndex });
 
-      sendClientEvent(sessionData);
-      console.log("session created");
-      //   sendClientEvent({
-      //     type: "response.create",
-      //     response: {
-      //       instructions: `Say hi..`,
-      //     },
-      //   });
-      setSessionUpdated(true);
-    }
-
-    if (firstEvent.type === "session.updated") {
-      console.log("session updated");
+      //   sendClientEvent(sessionData);
       sendClientEvent({
         type: "response.create",
+        response: {
+          tool_choice: "required",
+        },
       });
+
+      console.log("session created");
+      setSessionUpdated(true);
     }
 
     const mostRecentEvent = events[0];
     console.log(mostRecentEvent);
+    if (mostRecentEvent.type === "session.updated") {
+      console.log("session updated");
+      // setTimeout(() => {
+      //   sendClientEvent({
+      //     type: "response.create",
+      //     response: {
+      //       instructions: `First very concisely remind the user what the previous content was about, then ask the question. Make sure that you don't reveal the answer before the question. Start speaking`,
+      //     },
+      //   });
+      // }, 20);
+    }
+
     if (
       mostRecentEvent.type === "response.done" &&
       mostRecentEvent.response?.output
@@ -287,6 +317,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
           switch (output.name) {
             case "display_explanation_text":
               setCurrentUI("explanation");
+              setRecentFunctionCallEvent(output);
               setTimeout(() => {
                 sendClientEvent({
                   type: "response.create",
@@ -295,6 +326,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
               break;
             case "display_multiple_choice":
               setCurrentUI("multiple_choice");
+              setRecentFunctionCallEvent(output);
               setTimeout(() => {
                 sendClientEvent({
                   type: "response.create",
@@ -309,8 +341,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
               setCurrentUI("empty");
               break;
           }
-          setRecentFunctionCallEvent(output);
-          //   sendClientEvent({
+
           //     type: "response.create",
           //     //   response: {
           //     //     instructions: `

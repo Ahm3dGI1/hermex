@@ -134,7 +134,8 @@ interface SessionCreatedEvent extends BaseEvent {
 interface ResponseCreateEvent extends BaseEvent {
   type: "response.create";
   response?: {
-    instructions: string;
+    instructions?: string;
+    tool_choice?: any;
   };
 }
 

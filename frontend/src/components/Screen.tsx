@@ -1,6 +1,6 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react';
-import { useYoutubePlayer } from '../hooks/youtube-player.tsx';
+import { useEffect, useState, Dispatch, SetStateAction } from 'react';
 import YouTube from 'react-youtube';
+import { useYoutubePlayer } from '../hooks/youtube-player.tsx';
 import { getBackendAPI } from '../utils/backendApi.tsx';
 import { extractVideoId, isValidYouTubeLink } from '../utils/youtube.tsx';
 import { Checkpoint, Status } from './Types.tsx';
@@ -123,7 +123,9 @@ export default function Screen({
       setCurrentCheckpointIndex(0);
       setVideoId(id); // triggers iframe rendering
       setStatus('class');
-
+      setTimeout(() => {
+        play();
+      }, 2000);
     } catch (error) {
       console.error("Error during preprocessing:", error);
     }
