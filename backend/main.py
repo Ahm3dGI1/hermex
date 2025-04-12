@@ -1,17 +1,17 @@
-import uuid
+from hashlib import sha256
+import os
+from dotenv import load_dotenv
+import json
 
 import firebase_admin
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from firebase_admin import credentials, firestore
 from pydantic import BaseModel
+
 from utils.openai import generate_ai_questions_and_summary, stt
 from utils.youtube_utils import download_audio
 
-import os
-from dotenv import load_dotenv
-
-import json
 
 load_dotenv()
 
@@ -55,9 +55,15 @@ class QuestionRequest(BaseModel):
 @app.post("/api/preprocess")
 def preprocess_video(data: PreprocessRequest):
     try:
-        session_id = str(uuid.uuid4())
+        video_id = sha256(data.youtube_link.encode("utf-8")).hexdigest()
 
-        audio_file = download_audio(data.youtube_link, session_id)
+        cached_doc = db.collection("sessions").document(video_id).get()
+        if cached_doc.exists:
+            cached_data = cached_doc.to_dict()
+            cached_data["session_id"] = video_id
+            return cached_data
+
+        audio_file = download_audio(data.youtube_link, video_id)
         transcript_verbose = stt(audio_file)
         transcript_text = transcript_verbose.text.strip()
         transcript_segments = clean_transcript_segments(transcript_verbose.segments)
@@ -84,8 +90,8 @@ def preprocess_video(data: PreprocessRequest):
         for idx, checkpoint in enumerate(checkpoints):
             checkpoint["segment"] = checkpoints_context[idx]
 
-        doc_ref = db.collection("sessions").document(session_id)
-        doc_ref.set({
+        # Cache the result using video hash as ID
+        db.collection("sessions").document(video_id).set({
             "transcript": transcript_text,
             "segments": transcript_segments,
             "checkpoints": checkpoints,
@@ -94,7 +100,7 @@ def preprocess_video(data: PreprocessRequest):
         })
 
         return {
-            "session_id": session_id,
+            "session_id": video_id,
             "transcript": transcript_text,
             "checkpoints": checkpoints,
             "summary": ai_response.final.summary,
