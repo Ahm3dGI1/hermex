@@ -49,7 +49,6 @@ def preprocess_video(data: PreprocessRequest):
         "session_id": session_id,
         "transcript": transcript_text,
         "checkpoints": ai_response.checkpoints,
-        "summary": ai_response.final["summary"],
-        "review_questions": ai_response.final["review_questions"],
+        "summary": ai_response.final.summary,
+        "review_questions": ai_response.final.review_questions,
     }
-
