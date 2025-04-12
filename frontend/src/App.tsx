@@ -45,7 +45,7 @@ function App() {
       const data = await response.json();
 
 
-      const checkpointTimes = data.ai_insights.checkpoints
+      const checkpointTimes = data.checkpoints
         .map((cp: any) => cp.time)
         .sort((a: number, b: number) => a - b);
 

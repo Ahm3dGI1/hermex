@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from fastapi import Body
 from fastapi.middleware.cors import CORSMiddleware
 
 import uuid
@@ -20,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def clean_transcript_segments(segments: dict) -> dict:
+def clean_transcript_segments(segments: list) -> list[dict]:
     return [
         {
             "start": round(segment.start, 2),
@@ -49,7 +48,8 @@ def preprocess_video(data: PreprocessRequest):
     return {
         "session_id": session_id,
         "transcript": transcript_text,
-        "checkpoints": ai_insights.checkpoints,
-        "summary": ai_insights.final["summary"],
-        "review_questions": ai_insights.final["review_questions"],
+        "checkpoints": ai_response.checkpoints,
+        "summary": ai_response.final["summary"],
+        "review_questions": ai_response.final["review_questions"],
     }
+
