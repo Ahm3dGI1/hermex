@@ -65,6 +65,16 @@ function App() {
     }
   };
 
+  const handleAskQuestion = () => {
+    pause(); // Pause the video
+    console.log("Ask Question button clicked");
+  };
+
+  const handleEndConvo = () => {
+    play(); // Pause the video
+    console.log("End Convo button clicked");
+  };
+
 
   return (
     <div className="main flex flex-col justify-center items-center h-screen bg-blue-200">
@@ -86,7 +96,7 @@ function App() {
         </button>
       </div>
 
-      {/* YouTube Player */}
+      {/* Class Start */}
       {videoId && (
         <>
           <div className="video-container mt-6 px-6 w-full max-w-3xl">
@@ -101,11 +111,8 @@ function App() {
           </div>
 
           <div className="mt-4 flex gap-4">
-            <button onClick={pause} className="bg-red-500 text-white px-4 py-2 rounded">Pause</button>
-            <button onClick={play} className="bg-green-500 text-white px-4 py-2 rounded">Play</button>
-            <button onClick={() => console.log("Time:")} className="bg-yellow-500 text-white px-4 py-2 rounded">
-              Log Time
-            </button>
+            <button onClick={handleAskQuestion} className="bg-red-500 text-white px-4 py-2 rounded">Ask Question</button>
+            <button onClick={handleEndConvo} className="bg-green-500 text-white px-4 py-2 rounded">End Convo</button>
           </div>
         </>
       )}

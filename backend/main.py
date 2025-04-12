@@ -59,13 +59,25 @@ def preprocess_video(data: PreprocessRequest):
 
     return session_data[session_id]
 
-
-@app.get("/api/transcript/{session_id}")
-def get_transcript(session_id: str):
-    if session_id in session_data:
-        return session_data[session_id]
-    else:
+# Endpoint to retrieve the transcript between two timestamps
+@app.get("/api/transcript/{session_id}/{start_time}/{end_time}")
+def get_transcript(session_id: str, start_time: float, end_time: float):
+    session = session_data.get(session_id)
+    if not session:
         return {"error": "Session not found"}
+    
+    segments = session["segments"]
+    transcript_snippet = ""
+
+    for segment in segments:
+        start, end, text = segment["start"], segment["end"], segment["text"]
+        if start >= start_time and end <= end_time:
+            transcript_snippet += text + " "
+            
+    return {
+        "transcript": transcript_snippet.strip(),
+    }
+    
 
 @app.post("/api/realtime_conversation")
 def realtime_conversation(data: QuestionRequest):
