@@ -4,7 +4,9 @@ import { Checkpoint, RealtimeEvent, ResponseOutput, Status } from './Types';
 import DetailedExplanationComponent from './whiteboard-elements/DetailedExplanation';
 import ExplanationComponent from './whiteboard-elements/Explanation.tsx';
 import MultipleChoice from './whiteboard-elements/MultipleChoice';
-type UIType = 'empty' | 'explanation' | 'multiple_choice' | 'buttons' | 'detailed_explanation';
+import OpenEndedQuestion from './whiteboard-elements/OpenendedQuestion';
+
+type UIType = 'empty' | 'explanation' | 'multiple_choice' | 'buttons' | 'detailed_explanation' | 'openended_question';
 
 
 
@@ -20,10 +22,10 @@ const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoint
   console.log("Transcript sent to the model:")
   console.log(transcript);
   return `
-  You are AI tutor that uses black board to help user learn from Youtube videos. You speak English only.
+  You sound very excited and enthusiastic. You are AI tutor that uses black board to help user learn from Youtube videos. You speak English only.
   Now the video has been paused at the indicated as [Current Checkpoint] checkpoint, and you are asking the user a question regarding the content before this checkpoint.
   First very concisely remind the user what the previous content was about, then ask the question. Make sure that you don't reveal the answer before the question.
-  Keep in mind to use the tools to draw on the blackboard for visual aids.
+  Keep in mind to use the tools to draw on the blackboard for visual aids. Every question must be acompanies by some visual on the blackboard.
   Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function. Do not end the conversation without user's clear intent.
 
 Transcription:
@@ -60,7 +62,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
         {
           type: "function",
           name: "display_explanation_text",
-          description: 'Display explanation text to supplement your explanation. After running this, briefly explain what you just wrote on the board.',
+          description: 'Display explanation text to supplement your explanation. After running this, briefly explain what you just wrote on the board. Do not repeat the text you just wrote. It should be one short sentence.',
           parameters: {
             type: "object",
             strict: true,
@@ -83,6 +85,22 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
             },
             required: ["title", "bullets"],
           },
+        },
+        {
+          type: "function",
+          name: "display_openended_question",
+          description: "Display an open ended question to the user. Run this before you ask the question.",
+          parameters: {
+            type: "object",
+            strict: true,
+            properties: {
+              question: {
+                type: "string",
+                description: "The question text"
+              }
+            },
+            required: ["question"]
+          }
         },
         {
           type: "function",
@@ -337,6 +355,15 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
                 });
               }, 20);
               break;
+            case "display_openended_question":
+              setCurrentUI("openended_question");
+              setRecentFunctionCallEvent(output);
+              setTimeout(() => {
+                sendClientEvent({
+                  type: "response.create",
+                });
+              }, 20);
+              break;
             case "display_multiple_choice":
               setCurrentUI("multiple_choice");
               setRecentFunctionCallEvent(output);
@@ -409,6 +436,8 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
         return <DetailedExplanationComponent functionCallOutput={recentFunctionCallEvent!} />;
       case "multiple_choice":
         return <MultipleChoice functionCallOutput={recentFunctionCallEvent!} handleChoiceClick={handleChoiceClick} />;
+      case "openended_question":
+        return <OpenEndedQuestion functionCallOutput={recentFunctionCallEvent!} />;
       default:
         return <div>Checkpoint</div>;
     }
