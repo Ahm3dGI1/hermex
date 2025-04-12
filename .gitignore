@@ -4,6 +4,8 @@ __pycache__
 
 .temp/
 
+firebase_credentials.json
+
 # Logs
 logs
 *.log
