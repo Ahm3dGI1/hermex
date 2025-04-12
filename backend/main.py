@@ -4,7 +4,10 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi import Body
 from fastapi.middleware.cors import CORSMiddleware
+
 import uuid
+
+from utils.youtube_utils import download_audio
 
 app = FastAPI()
 
@@ -19,15 +22,15 @@ app.add_middleware(
 class PreprocessRequest(BaseModel):
     youtube_link: str
 
-@app.get("/api")
-
-
-
 @app.post("/api/preprocess")
 def preprocess_video(data: PreprocessRequest):
     session_id = str(uuid.uuid4())
+    
+    audio_file = download_audio(data.youtube_link, session_id)
+
     return {
-        "status": "started",
+        "status": "downloaded",
         "session_id": session_id,
-        "message": f"Started processing {data.youtube_link}"
+        "audio_file": audio_file,
+        "message": f"Audio downloaded from {data.youtube_link}"
     }
