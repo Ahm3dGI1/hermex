@@ -1,19 +1,16 @@
-from hashlib import sha256
-import os
-from dotenv import load_dotenv
 import json
+import os
+from hashlib import sha256
 
 import firebase_admin
+import requests
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from firebase_admin import credentials, firestore
 from pydantic import BaseModel
-import requests
-
-
 from utils.openai import generate_ai_questions_and_summary, stt
 from utils.youtube_utils import download_audio
-
 
 load_dotenv()
 
@@ -137,7 +134,7 @@ def get_transcript(session_id: str, start_time: float, end_time: float):
     }
 
 @app.post("/api/session-token")
-def get_openai_client_secret():
+def get_openai_client_secret(payload: dict):
     REALTIME_API_KEY = os.getenv("REALTIME_API_KEY")
     print(REALTIME_API_KEY)
     if not REALTIME_API_KEY:
@@ -150,10 +147,7 @@ def get_openai_client_secret():
                 "Authorization": f"Bearer {REALTIME_API_KEY}",
                 "Content-Type": "application/json"
             },
-            json={
-                "model": "gpt-4o-realtime-preview-2024-12-17",
-                "voice": "verse"
-            }
+            json=payload
         )
 
         response.raise_for_status()
