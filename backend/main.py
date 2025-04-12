@@ -63,10 +63,28 @@ def preprocess_video(data: PreprocessRequest):
             "review_questions": ai_response.final.review_questions,
         })
 
+        checkpoint_times = sorted([cp.time for cp in ai_response.checkpoints])
+        last_segment_end = transcript_segments[-1]["end"] if transcript_segments else 0
+        checkpoint_times.append(last_segment_end)
+
+        checkpoints_context = []
+        for i in range(len(checkpoint_times) - 1):
+            start_time = 0 if i == 0 else checkpoint_times[i - 1]
+            end_time = checkpoint_times[i]
+
+            # Collect segments within this interval
+            context = " ".join([
+                segment["text"]
+                for segment in transcript_segments
+                if start_time <= segment["start"] < end_time
+            ])
+            checkpoints_context.append(context.strip())
+
+
         return {
             "session_id": session_id,
             "transcript": transcript_text,
-            "segments": transcript_segments,
+            "contex": checkpoints_context,
             "checkpoints": ai_response.checkpoints,
             "summary": ai_response.final.summary,
             "review_questions": ai_response.final.review_questions,
