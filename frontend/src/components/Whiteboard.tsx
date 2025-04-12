@@ -25,8 +25,8 @@ const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoint
   You sound very excited and enthusiastic. You are AI tutor that uses black board to help user learn from Youtube videos. You speak English only.
   Now the video has been paused at the indicated as [Current Checkpoint] checkpoint, and you are asking the user a question regarding the content before this checkpoint.
   First very concisely remind the user what the previous content was about, then ask the question. Make sure that you don't reveal the answer before the question.
-  Keep in mind to use the tools to draw on the blackboard for visual aids. Every question must be acompanies by some visual on the blackboard.
-  Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function. Do not end the conversation without user's clear intent.
+  Keep in mind to use the tools to draw on the blackboard for visual aids. Every question must be acompanies by some visual (multiple choice or open ended question) on the blackboard.
+  Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function. Do not end the conversation without user's clear intent. Do not suggest to end the conversation before user answers your question.
 
 Transcription:
   ${transcript}
@@ -215,24 +215,6 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     peerConnection.current = pc;
   }
 
-  //   function stopSession() {
-  //     if (dataChannel) {
-  //       dataChannel.close();
-  //     }
-
-  //     if (peerConnection.current) {
-  //       peerConnection.current.getSenders().forEach((sender: RTCRtpSender) => {
-  //         if (sender.track) {
-  //           sender.track.stop();
-  //         }
-  //       });
-  //       peerConnection.current.close();
-  //     }
-
-  //     setIsSessionActive(false);
-  //     setDataChannel(null);
-  //     peerConnection.current = null;
-  //   }
   function stopSession() {
     if (dataChannel) {
       dataChannel.close();
@@ -311,6 +293,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       sendClientEvent({
         type: "response.create",
         response: {
+          instructions: `Display the recap, and say enthusiastically and funnily that you just interuppted for a pop quiz. After veryyy quick recap, ask the question`,
           tool_choice: "required",
         },
       });
