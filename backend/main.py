@@ -20,9 +20,11 @@ app.add_middleware(
 
 
 # Init Firebase
-cred = credentials.Certificate("firebase_credentials.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+firebase_json_str = os.getenv("FIREBASE_CREDENTIALS_JSON")
+if firebase_json_str:
+    cred_dict = json.loads(firebase_json_str)
+    cred = credentials.Certificate(cred_dict)
+    firebase_admin.initialize_app(cred)
 
 
 def clean_transcript_segments(segments: list) -> list[dict]:
