@@ -11,7 +11,7 @@ export const useYoutubePlayer = (
 
     useEffect(() => {
         const interval = setInterval(() => {
-            const currentTime = playerRef.current.getCurrentTime();
+            const currentTime = playerRef.current?.getCurrentTime();
             if (onTimeUpdate) {
                 onTimeUpdate(currentTime);
             }
@@ -21,8 +21,8 @@ export const useYoutubePlayer = (
     }, [onTimeUpdate]);
 
     return {
-        pause: () => playerRef.current.pauseVideo(),
-        play: () => playerRef.current.playVideo(),
+        pause: () => playerRef.current?.pauseVideo(),
+        play: () => playerRef.current?.playVideo(),
         getCurrentTime: () => playerRef.current.getCurrentTime(),
         playerRef: playerRef,
     };

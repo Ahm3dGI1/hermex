@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Checkpoint, RealtimeEvent, ResponseOutput, SessionUpdateEvent, Status } from './Types';
 import Explanation from './whiteboard-elements/Explanation';
 import MultipleChoice from './whiteboard-elements/MultipleChoice';
+import { getBackendAPI } from '../utils/backendApi.tsx';
 type UIType = 'empty' | 'explanation' | 'multiple_choice' | 'buttons';
 
 const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoints: Checkpoint[], currentCheckpointIndex: number }) => {
@@ -117,25 +118,25 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     // Get a session token for OpenAI Realtime API
     // const tokenResponse = await fetch("/token");
     // const data = await tokenResponse.json();
-    const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-
-    const response = await fetch(
-      "https://api.openai.com/v1/realtime/sessions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-realtime-preview-2024-12-17",
-          voice: "verse",
-        }),
+    const apiurl = await getBackendAPI();
+    const response = await fetch(`${apiurl}/session-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to get session token from backend");
+    }
 
     const data = await response.json();
-    console.log(data);
+    console.log("Session token response:", data);
+
+    // ✅ Add this check
+    if (!data.client_secret || !data.client_secret.value) {
+      throw new Error("Missing client_secret in response");
+    }
 
     const EPHEMERAL_KEY = data.client_secret.value;
     // Create a peer connection
@@ -322,7 +323,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
           //     event_id: "null",
           //   });
 
-          
+
 
         }
       });
