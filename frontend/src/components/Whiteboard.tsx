@@ -146,6 +146,10 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
         }
       ],
       tool_choice: "auto",
+      turn_detection: {
+        eagerness: "low",
+        threshold: 0.8,
+      }
     };
     const response = await fetch(`${apiurl}/session-token`, {
       method: "POST",
@@ -293,7 +297,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       sendClientEvent({
         type: "response.create",
         response: {
-          instructions: `Display the recap, and say enthusiastically and funnily that you just interuppted for a pop quiz. After veryyy quick recap, ask the question`,
+          instructions: `Display the recap.`,
           tool_choice: "required",
         },
       });
