@@ -72,7 +72,6 @@ def preprocess_video(data: PreprocessRequest):
             start_time = 0 if i == 0 else checkpoint_times[i - 1]
             end_time = checkpoint_times[i]
 
-            # Collect segments within this interval
             context = " ".join([
                 segment["text"]
                 for segment in transcript_segments
