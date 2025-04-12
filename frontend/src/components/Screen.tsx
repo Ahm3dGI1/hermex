@@ -5,8 +5,6 @@ import { getBackendAPI } from '../utils/backendApi.tsx';
 import { extractVideoId, isValidYouTubeLink } from '../utils/youtube.tsx';
 import { Checkpoint, Status } from './Types.tsx';
 
-
-
 interface ScreenProps {
   status: Status;
   setStatus: (status: Status) => void;

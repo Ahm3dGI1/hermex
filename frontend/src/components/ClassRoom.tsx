@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import Whiteboard from './Whiteboard';
-import Screen from './Screen';
+import Screen from './Screen.tsx';
 import Yap from './Yap';
 import { Checkpoint, Status } from '../components/Types';
 
 export default function Classroom() {
-    const [isDown, setIsDown] = useState(true);
-
     // Required props for Screen
     const [status, setStatus] = useState<Status>("waitingForInput");
+    const [isDown, setIsDown] = useState(true);
     const [conversationMode, setConversationMode] = useState(false);
     const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
     const [currentCheckpointIndex, setCurrentCheckpointIndex] = useState(0);
