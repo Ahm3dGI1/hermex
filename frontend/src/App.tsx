@@ -1,85 +1,55 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
 
-const isValidYouTubeLink = (url: string): boolean => {
-  const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]{11}/;
-  return pattern.test(url.trim());
-};
-
-const extractVideoId = (url: string): string | null => {
-  const match = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : null;
-};
+import { isValidYouTubeLink, extractVideoId } from './utils/youtube.tsx';
+import { useYoutubePlayer } from './hooks/youtube-player.tsx';
 
 function App() {
+  const handleTimeUpdate = (time: number) => {
+    console.log("Current Time:", time);
+  }
+
   const [youtubeLink, setYoutubeLink] = useState<string>('');
   const [videoId, setVideoId] = useState<string | null>(null);
-  const playerRef = useRef<any>(null);
+  const { play, pause } = useYoutubePlayer(videoId, handleTimeUpdate); // Custom hook to manage YouTube player
 
-  // Load YouTube Iframe API once
-  useEffect(() => {
-    if (!window.YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      document.body.appendChild(tag);
-    }
-  }, []);
 
-  // Setup the player when videoId changes
-  useEffect(() => {
-    if (videoId && window.YT && window.YT.Player) {
-      playerRef.current = new window.YT.Player('youtube-player', {
-        events: {
-          onReady: () => console.log('YouTube Player Ready'),
-        },
-      });
-    }
-  }, [videoId]);
-
-  const handleInput = async (youtubeLink: string) => {
-    const id = extractVideoId(youtubeLink);
-    if (!id || !isValidYouTubeLink(youtubeLink)) {
-      alert('Invalid YouTube link format.');
-      return;
-    }
+  const handleInput = async (link: string) => {
+    const id = extractVideoId(link);
+    if (!id || !isValidYouTubeLink(link)) return alert('Invalid YouTube link.');
 
     setVideoId(id); // triggers iframe rendering
 
-    // Backend call (commented for now)
-    // try {
-    //   const response = await fetch('http://127.0.0.1:8000/api/preprocess', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ youtube_link: youtubeLink }),
-    //   });
-    //   const data = await response.json();
-    //   console.log("Preprocessing response:", data);
-    // } catch (error) {
-    //   console.error("Error during preprocessing:", error);
-    // }
+    // Preprocess the video link
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/preprocess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ youtube_link: link }),
+      });
+      const data = await response.json();
+      console.log("Preprocessing response:", data);
+    } catch (error) {
+      console.error("Error during preprocessing:", error);
+    }
   };
 
+  // Enter key press
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && youtubeLink.trim()) {
       handleInput(youtubeLink.trim());
     }
   };
 
-  const pauseVideo = () => {
-    playerRef.current?.pauseVideo();
-  };
-
-  const playVideo = () => {
-    playerRef.current?.playVideo();
-  };
 
   return (
     <div className="main flex flex-col justify-center items-center h-screen bg-blue-200">
+      {/* Input Field */}
       <div className="input flex justify-around items-center w-4/5">
         <input
-          className="link-field w-4/5 rounded bg-amber-50 select-none px-4 py-2"
+          className="link-field w-4/5 rounded bg-amber-50 px-4 py-2"
           type="text"
-          placeholder="Enter a video link to get started..."
+          placeholder="Enter a video link..."
           value={youtubeLink}
           onChange={(e) => setYoutubeLink(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -92,6 +62,7 @@ function App() {
         </button>
       </div>
 
+      {/* YouTube Player */}
       {videoId && (
         <>
           <div className="video-container mt-6 px-6 w-full max-w-3xl">
@@ -100,16 +71,17 @@ function App() {
               className="rounded-xl w-full aspect-video"
               src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1`}
               title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="autoplay; encrypted-media"
               allowFullScreen
             ></iframe>
           </div>
 
-          {/* Optional: control buttons to test pause/resume */}
           <div className="mt-4 flex gap-4">
-            <button onClick={pauseVideo} className="bg-red-500 text-white px-4 py-2 rounded">Pause</button>
-            <button onClick={playVideo} className="bg-green-500 text-white px-4 py-2 rounded">Play</button>
+            <button onClick={pause} className="bg-red-500 text-white px-4 py-2 rounded">Pause</button>
+            <button onClick={play} className="bg-green-500 text-white px-4 py-2 rounded">Play</button>
+            <button onClick={() => console.log("Time:")} className="bg-yellow-500 text-white px-4 py-2 rounded">
+              Log Time
+            </button>
           </div>
         </>
       )}
