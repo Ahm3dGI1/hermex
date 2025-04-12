@@ -26,7 +26,7 @@ const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoint
   Now the video has been paused at the indicated as [Current Checkpoint] checkpoint, and you are asking the user a question regarding the content before this checkpoint.
   First very concisely remind the user what the previous content was about, then ask the question. Make sure that you don't reveal the answer before the question.
   Keep in mind to use the tools to draw on the blackboard for visual aids. Every question must be acompanies by some visual (multiple choice or open ended question) on the blackboard.
-  Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function. Do not end the conversation without user's clear intent. Do not suggest to end the conversation before user answers your question.
+  Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function. DO NOT END the conversation without user's clear intent. Do not suggest to end the conversation before user answers your question.
 
 Transcription:
   ${transcript}
@@ -148,6 +148,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       tool_choice: "auto",
       turn_detection: {
         type: "semantic_vad",
+        eagerness: "low",
       }
     };
     const response = await fetch(`${apiurl}/session-token`, {
@@ -313,7 +314,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     if (mostRecentEvent.type === "response.done" && (mostRecentEvent.response?.output?.[0]?.type === "message" || mostRecentEvent.response?.output?.[1]?.type === "message")) {
       setHermexIsAnimating(false);
     }
-    if (mostRecentEvent.type === "response.created" && (mostRecentEvent.response?.output?.[0]?.type === "message" || mostRecentEvent.response?.output?.[1]?.type === "message")) {
+    if (mostRecentEvent.type === "response.audio_transcript.delta") {
       setHermexIsAnimating(true);
     }
 
