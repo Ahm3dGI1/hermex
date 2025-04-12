@@ -54,7 +54,7 @@ function Headers({ bullets }: { bullets: string[] }) {
   };
 
   return (
-    <div className="relative top-[7px] p-5 w-[300px]">
+    <div className="relative top-[7px] p-5 w-1/1.2">
       <ul className="list-disc text-sm md:text-base xl:text-xl text-white space-y-2 leading-relaxed">
         {bullets.map((point, index) => (
           <li 

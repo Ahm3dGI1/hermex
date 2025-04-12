@@ -429,6 +429,8 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
   }
 
   function getUI() {
+    
+    return <ExplanationComponent functionCallOutput={recentFunctionCallEvent!} />
     switch (currentUI) {
       case "explanation":
         return <ExplanationComponent functionCallOutput={recentFunctionCallEvent!} />;
