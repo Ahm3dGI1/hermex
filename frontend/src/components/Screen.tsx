@@ -1,4 +1,4 @@
-import { useEffect, useState, Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import YouTube from 'react-youtube';
 import { useYoutubePlayer } from '../hooks/youtube-player.tsx';
 import { getBackendAPI } from '../utils/backendApi.tsx';
@@ -140,12 +140,12 @@ export default function Screen({
 
           {/* Toggle Buttons */}
           <button
-            onClick={handleToggle}
+            //onClick={handleToggle}
             className="absolute top-0 left-0 w-[2000px] h-[810px]"
             aria-label="Toggle screen"
           />
           <button
-            onClick={handleToggle}
+            //onClick={handleToggle}
             className="absolute bottom-0 left-33 w-[50px] h-[190px]"
             aria-label="Toggle screen"
           />
