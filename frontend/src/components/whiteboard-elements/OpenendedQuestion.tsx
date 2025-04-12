@@ -93,7 +93,7 @@ export default function ExplanationComponent({ functionCallOutput }: { functionC
   }, [functionCallOutput]);
 
   return (
-    <div className="relative w-full h-[80vh] flex items-center justify-center bg-black">
+    <div className="relative w-full h-[80vh] flex items-center justify-center">
       <Title title={question} />
     </div>
   );

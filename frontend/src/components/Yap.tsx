@@ -23,7 +23,7 @@ export default function Yap({ isDown, isAnimating }: { isDown: boolean, isAnimat
     <div className={`absolute top-107 transition-all duration-500 ease-in-out ${!isDown ? '-left-10' : '-left-[600px]'
       } justify-center`}>
       <button
-        className="flex items-center justify-center"
+        className="flex items-center justify-center mt-15"
       >
         <img
           src={`/yap${currentImage}.PNG`}
