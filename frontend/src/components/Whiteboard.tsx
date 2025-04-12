@@ -34,7 +34,7 @@ Transcription:
 }
 
 
-export default function Whiteboard({ status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex }: { status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number }) {
+export default function Whiteboard({ status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex, setHermexIsAnimating }: { status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number, setHermexIsAnimating: (hermexIsAnimating: boolean) => void }) {
   const [currentUI, setCurrentUI] = useState<UIType>('empty');
 
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -234,6 +234,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     setIsSessionActive(false);
     setDataChannel(null);
     peerConnection.current = null;
+    setCurrentUI('empty');
 
     setEvents([]);
     setSessionUpdated(false);
@@ -358,8 +359,10 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
               }, 20);
               break;
             case "end_conversation":
-              stopSession();
-              setConversationMode(false);
+              setTimeout(() => {
+                stopSession();
+                setConversationMode(false);
+              }, 2000);
               break;
             default:
               setCurrentUI("empty");
@@ -429,14 +432,10 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
   }
 
   return (
-    <div className="mx-auto mt-[100px] ml-[300px] w-[1050px] h-[600px]">
-      {getUI()}
-      {conversationMode && (
-        <div className="flex mt-[500px] items-center justify-center gap-4 w-full">
-          <button onClick={handleEndChat} className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors w-48"
-          >End Chat</button>
-        </div>
-      )}
+    <div className="fixed inset-0 flex items-center justify-center">
+      <div className="w-[1050px] h-[600px]">
+        {getUI()}
+      </div>
     </div>
   );
 };
