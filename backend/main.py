@@ -8,6 +8,11 @@ from pydantic import BaseModel
 from utils.openai import generate_ai_questions_and_summary, stt
 from utils.youtube_utils import download_audio
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 app = FastAPI()
 
 app.add_middleware(
@@ -20,11 +25,14 @@ app.add_middleware(
 
 
 # Init Firebase
-firebase_json_str = os.getenv("FIREBASE_CREDENTIALS_JSON")
-if firebase_json_str:
-    cred_dict = json.loads(firebase_json_str)
-    cred = credentials.Certificate(cred_dict)
-    firebase_admin.initialize_app(cred)
+if os.getenv("ENV") == "local":
+    cred = credentials.Certificate("firebase_credentials.json")
+else:
+    cred = credentials.Certificate(os.getenv("FIREBASE_CREDENTIALS_JSON"))
+    cred = credentials.Certificate(json.loads(cred))
+
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 
 def clean_transcript_segments(segments: list) -> list[dict]:
