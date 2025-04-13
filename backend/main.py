@@ -18,7 +18,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://hermex-gamma.vercel.app", "https://hermex-frontend.vercel.app/"],  # frontend URL
+    allow_origins=["http://localhost:5173", "https://hermex-gamma.vercel.app", "https://hermex-frontend.vercel.app/", "https://hermex-frontend-git-main-ahmed-ibrahims-projects-a63cd30b.vercel.app/", "https://hermex-frontend-ahmed-ibrahims-projects-a63cd30b.vercel.app/"],  # frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
