@@ -12,9 +12,11 @@ export interface Checkpoint {
 interface ConversationItemCreateEvent extends BaseEvent {
   type: "conversation.item.create";
   item: {
-    type: "function_call_output";
-    call_id: string;
-    output: string;
+    type: "function_call_output" | "message" | "function_call";
+    role?: "user" | "assistant" | "system";
+    content?: Array<any>;
+    call_id?: string;
+    output?: string;
   };
 }
 
