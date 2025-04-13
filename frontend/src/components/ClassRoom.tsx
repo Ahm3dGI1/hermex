@@ -7,6 +7,7 @@ import Yap from './Yap';
 export default function Classroom() {
     // Required props for Screen
     const [status, setStatus] = useState<Status>("waitingForInput");
+    const [startPreloading, setStartPreloading] = useState(false);
     const [isDown, setIsDown] = useState(true);
     const [conversationMode, setConversationMode] = useState(false);
     const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
@@ -28,6 +29,8 @@ export default function Classroom() {
                     checkpoints={checkpoints}
                     currentCheckpointIndex={currentCheckpointIndex}
                     setHermexIsAnimating={setHermexIsAnimating}
+                    startPreloading={startPreloading}
+                    setStartPreloading={setStartPreloading}
                 />
                 <Screen
                     status={status}
@@ -38,6 +41,7 @@ export default function Classroom() {
                     setCheckpoints={setCheckpoints}
                     currentCheckpointIndex={currentCheckpointIndex}
                     setCurrentCheckpointIndex={setCurrentCheckpointIndex}
+                    setStartPreloading={setStartPreloading}
                     isDown={isDown}
                     setIsDown={setIsDown}
                 />

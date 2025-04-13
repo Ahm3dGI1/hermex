@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { getBackendAPI } from '../utils/backendApi.tsx';
 import { Checkpoint, RealtimeEvent, ResponseOutput, Status } from './Types';
 import DetailedExplanationComponent from './whiteboard-elements/DetailedExplanation';
@@ -34,7 +34,7 @@ Transcription:
 }
 
 
-export default function Whiteboard({ status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex, setHermexIsAnimating }: { status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number, setHermexIsAnimating: (hermexIsAnimating: boolean) => void }) {
+export default function Whiteboard({ status, setStatus, conversationMode, setConversationMode, checkpoints, currentCheckpointIndex, setHermexIsAnimating, startPreloading, setStartPreloading }: { status: Status, setStatus: (status: Status) => void, conversationMode: boolean, setConversationMode: (conversationMode: boolean) => void, checkpoints: Checkpoint[], currentCheckpointIndex: number, setHermexIsAnimating: (hermexIsAnimating: boolean) => void, startPreloading: boolean, setStartPreloading: (startPreloading: boolean) => void }) {
   const [currentUI, setCurrentUI] = useState<UIType>('empty');
 
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -265,6 +265,13 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
   }
 
   useEffect(() => {
+    if (startPreloading) {
+      startSession();
+      setStartPreloading(false);
+    }
+  }, [startPreloading]);
+
+  useEffect(() => {
     if (dataChannel) {
       // Append new server events to the list
       dataChannel.addEventListener("message", (e: MessageEvent) => {
@@ -303,13 +310,14 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
 
       console.log("session created");
       setSessionUpdated(true);
+      setConversationMode(true);
     }
 
     const mostRecentEvent = events[0];
     console.log(mostRecentEvent);
     if (mostRecentEvent.type === "session.updated") {
       console.log("session updated");
-      
+
     }
     if (mostRecentEvent.type === "response.done" && (mostRecentEvent.response?.output?.[0]?.type === "message" || mostRecentEvent.response?.output?.[1]?.type === "message")) {
       setHermexIsAnimating(false);
@@ -439,4 +447,3 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     </div>
   );
 };
-
