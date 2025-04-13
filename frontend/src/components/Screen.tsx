@@ -119,7 +119,6 @@ export default function Screen({
     }
   };
 
-
   const opts = {
     height: '540',
     width: '960',
@@ -127,7 +126,6 @@ export default function Screen({
       autoplay: 0,
     },
   };
-
 
   return (
     <div className="mx-auto">
