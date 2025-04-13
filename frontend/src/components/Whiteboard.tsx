@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getBackendAPI } from '../utils/backendApi.tsx';
 import { Checkpoint, RealtimeEvent, ResponseOutput, Status } from './Types';
 import DetailedExplanationComponent from './whiteboard-elements/DetailedExplanation';
@@ -267,8 +267,8 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
 
   useEffect(() => {
     if (startPreloading) {
-      startSession();
       setStartPreloading(false);
+      startSession();
     }
   }, [startPreloading]);
 
@@ -305,7 +305,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
         sendClientEvent({
           type: "response.create",
           response: {
-            instructions: `Tell the user that you just interrupted the video for a surprise popup question! Then display the recap info of the video on the blackboard.`,
+            instructions: `Tell the user that you just interrupted the video for a surprise popup question! Then display the recap info about the video (look at the video transcript) on the blackboard.`,
             //tool_choice: "required",
           },
        });
@@ -407,14 +407,6 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       });
     }
   }, [events]);
-
-
-  useEffect(() => {
-    if (conversationMode) {
-      console.log("Starting real time chat");
-      startSession();
-    }
-  }, [conversationMode]);
 
   function handleEndChat() {
     setConversationMode(false);

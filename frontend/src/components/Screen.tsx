@@ -104,9 +104,6 @@ export default function Screen({
       setTimeout(() => {
         play();
       }, 2000);
-      setTimeout(() => {
-        play();
-      }, 2000);
     } catch (error) {
       console.error("Error during preprocessing:", error);
     }
