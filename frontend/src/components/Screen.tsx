@@ -152,7 +152,7 @@ export default function Screen({
 
           {/* Nested Input Field */}
           {!videoId && status !== 'processing' && (
-            <div className="absolute top-[71%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[60%] flex justify-between gap-4 z-10">
+            <div className="absolute top-[71%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[60%] flex justify-between gap-4 z-10 duration-300">
               <input
                 className="flex-1 rounded bg-white/80 backdrop-blur-sm border border-[#8F71A3] px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#8F71A3]"
                 type="text"
