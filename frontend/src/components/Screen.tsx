@@ -152,7 +152,7 @@ export default function Screen({
 
           {/* Nested Input Field */}
           {!videoId && status !== 'processing' && (
-            <div className="absolute top-[71%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[60%] flex justify-between gap-4 z-10">
+            <div className="absolute top-[71%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[60%] flex justify-between gap-4 z-10 duration-300">
               <input
                 className="flex-1 rounded bg-white/80 backdrop-blur-sm border border-[#8F71A3] px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#8F71A3]"
                 type="text"
@@ -186,14 +186,14 @@ export default function Screen({
         </div>
 
         {isDown && status !== 'class' && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-2/3 z-20 max-w-[700px] text-center bg-white/80 backdrop-blur-md p-8 rounded-xl shadow-lg border border-gray-300">
+          <div className="absolute top-[20px] left-1/2 transform -translate-x-1/2 z-20 max-w-[700px] text-center bg-white/80 backdrop-blur-md p-8 rounded-xl shadow-lg border border-gray-300">
             <h2 className="text-2xl font-bold mb-4 text-[#6A4C93]">Getting things ready!</h2>
             <p className="text-gray-800 text-lg mb-3">We're analyzing your video to create an interactive learning experience.</p>
             <ul className="text-left text-gray-700 list-disc pl-6 space-y-2 text-base">
               <li>⏸️ The video will pause at important moments to check your understanding with various quesitions.</li>
               <li>🧠 You can use your mic to answer the questions and have a conversation with your personal tutor.</li>
               <li>🧑‍🏫 You can answer the question and go back to the video or ask the tutor more questions.</li>
-              <li>🎥 Say “go back to video” when you're ready to resume.</li>
+              <li>🎥 Say "go back to video" when you're ready to resume.</li>
             </ul>
             <p className="mt-6 italic text-sm text-gray-600">Tip: You can interrupt the tutor whenever you want.</p>
           </div>)}
