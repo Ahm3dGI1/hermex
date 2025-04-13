@@ -1,4 +1,4 @@
-import { useEffect, useState, Dispatch, SetStateAction } from 'react';
+import { useEffect, useState, Dispatch, SetStateAction, use } from 'react';
 import YouTube from 'react-youtube';
 import { useYoutubePlayer } from '../hooks/youtube-player.tsx';
 import { getBackendAPI } from '../utils/backendApi.tsx';
@@ -14,6 +14,7 @@ interface ScreenProps {
   setCheckpoints: (checkpoints: Checkpoint[]) => void;
   currentCheckpointIndex: number;
   setCurrentCheckpointIndex: React.Dispatch<React.SetStateAction<number>>;
+  setStartPreloading: Dispatch<SetStateAction<boolean>>;
   isDown: boolean;
   setIsDown: Dispatch<SetStateAction<boolean>>;
 }
@@ -27,6 +28,7 @@ export default function Screen({
   setCheckpoints,
   currentCheckpointIndex,
   setCurrentCheckpointIndex,
+  setStartPreloading,
   isDown,
   setIsDown
 }: ScreenProps) {
@@ -45,13 +47,9 @@ export default function Screen({
       currentCheckpointIndex < checkpoints.length &&
       time >= checkpoints[currentCheckpointIndex].time
     ) {
-      pause();
       console.log("Paused at checkpoint:", checkpoints[currentCheckpointIndex].time);
-      setConversationMode(true);
+      setStartPreloading(true);
       setCurrentCheckpointIndex((prev) => prev + 1);
-      if (isDown) {
-        setIsDown(false);
-      }
     }
   }
 
@@ -71,6 +69,13 @@ export default function Screen({
       }
 
       play();
+    }
+    if (conversationMode && status === 'class' && playerRef.current) {
+      pause();
+
+      if (isDown) {
+        setIsDown(false);
+      }
     }
   }, [conversationMode]);
 
@@ -94,6 +99,7 @@ export default function Screen({
 
       setCheckpoints(data.checkpoints.sort((a: Checkpoint, b: Checkpoint) => a.time - b.time));
       setCurrentCheckpointIndex(0);
+      setStartPreloading(true);
       setVideoId(id); // triggers iframe rendering
       setStatus('class');
       setTimeout(() => {
