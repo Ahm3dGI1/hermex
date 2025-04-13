@@ -3,20 +3,23 @@ import { autoEscapeJSON } from '../../types/jsonUtils';
 import { ResponseOutput } from '../Types';
 
 
-function AnimatedText({ text, onComplete }: { text: string, onComplete?: () => void }) {
+function AnimatedText({ text }: { text: string }) {
   const [visibleWords, setVisibleWords] = useState<number>(0);
   const words = text.split(' ');
 
   useEffect(() => {
-    if (visibleWords < words.length) {
-      const timer = setTimeout(() => {
-        setVisibleWords(prev => prev + 1);
-      }, 40);
-      return () => clearTimeout(timer);
-    } else if (onComplete) {
-      onComplete();
-    }
-  }, [visibleWords, words.length, onComplete]);
+    const interval = setInterval(() => {
+      setVisibleWords(prev => {
+        if (prev >= words.length) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [words.length]);
 
   return (
     <>
@@ -44,15 +47,16 @@ function Title({ title }: { title: string }) {
 }
 
 function Headers({ bullets }: { bullets: string[] }) {
-  const [visibleBullets, setVisibleBullets] = useState<number>(1);
-  const [completedBullets, setCompletedBullets] = useState<number>(0);
+  const [visibleBullets, setVisibleBullets] = useState<number>(0);
 
-  const handleBulletComplete = () => {
-    setCompletedBullets(prev => prev + 1);
+  useEffect(() => {
     if (visibleBullets < bullets.length) {
-      setVisibleBullets(prev => prev + 1);
+      const timer = setTimeout(() => {
+        setVisibleBullets(prev => prev + 1);
+      }, 1000);
+      return () => clearTimeout(timer);
     }
-  };
+  }, [visibleBullets, bullets.length]);
 
   return (
     <div className="relative top-[7px] p-5 w-1/1.2">
@@ -62,16 +66,11 @@ function Headers({ bullets }: { bullets: string[] }) {
             key={index} 
             className="break-words transition-opacity duration-300"
             style={{ 
-              opacity: index < visibleBullets ? 1 : 0,
-              visibility: index < visibleBullets ? 'visible' : 'hidden'
+              opacity: index <= visibleBullets ? 1 : 0,
+              visibility: index <= visibleBullets ? 'visible' : 'hidden'
             }}
           >
-            {index < visibleBullets && (
-              <AnimatedText 
-                text={point} 
-                onComplete={index === visibleBullets - 1 ? handleBulletComplete : undefined}
-              />
-            )}
+            <AnimatedText text={point} />
           </li>
         ))}
       </ul>

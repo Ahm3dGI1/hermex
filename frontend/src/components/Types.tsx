@@ -4,10 +4,10 @@ type Status = 'waitingForInput' | 'processing' | 'class' | 'review' | 'done';
 type EventType = "response.done" | "session.update" | "session.created" | "response.create" | "session.updated" | "conversation.item.create" | "response.created" | "response.audio_transcript.delta";
 
 export interface Checkpoint {
-    time: number;
-    question: string;
-    segment: string;
-  }
+  time: number;
+  question: string;
+  segment: string;
+}
 
 interface ConversationItemCreateEvent extends BaseEvent {
   type: "conversation.item.create";
@@ -148,8 +148,14 @@ interface ResponseCreatedEvent extends BaseEvent {
   };
 }
 
+interface ResponseAudioTranscriptDeltaEvent extends BaseEvent {
+  type: "response.audio_transcript.delta";
+  // Define the expected shape of this event's data, or use any if unsure
+  transcript?: string;
+}
 
-type RealtimeEvent = ResponseDoneEvent | SessionUpdateEvent | SessionCreatedEvent | ResponseCreateEvent | SessionUpdatedEvent | ConversationItemCreateEvent | ResponseCreatedEvent;
+
+type RealtimeEvent = ResponseDoneEvent | SessionUpdateEvent | SessionCreatedEvent | ResponseCreateEvent | SessionUpdatedEvent | ConversationItemCreateEvent | ResponseCreatedEvent | ResponseAudioTranscriptDeltaEvent;
 
 export type { ConversationItemCreateEvent, RealtimeEvent, ResponseCreatedEvent, ResponseCreateEvent, ResponseDoneEvent, ResponseOutput, SessionCreatedEvent, SessionUpdateEvent, Status };
 
