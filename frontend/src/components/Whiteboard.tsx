@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getBackendAPI } from '../utils/backendApi.tsx';
 import { Checkpoint, RealtimeEvent, ResponseOutput, Status } from './Types';
 import DetailedExplanationComponent from './whiteboard-elements/DetailedExplanation';
@@ -21,8 +21,7 @@ const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoint
   transcript += "\n[Current Checkpoint]\nQuestion you should ask in this session:\n" + checkpoints[currentCheckpointIndex].question + "\n\n";
   console.log("Transcript sent to the model:")
   console.log(transcript);
-  return `
-  You sound very excited and enthusiastic. You are AI tutor that uses black board to help user learn from Youtube videos. You speak English only.
+  return `You sound very excited and enthusiastic. You are AI tutor that uses black board to help user learn from Youtube videos. You speak English only.
   Now the video has been paused at the indicated as [Current Checkpoint] checkpoint, and you are asking the user a question regarding the content before this checkpoint.
   First very concisely remind the user what the previous content was about, then ask the question. Make sure that you don't reveal the answer before the question.
   Keep in mind to use the tools to draw on the blackboard for visual aids. Every question must be acompanies by some visual (multiple choice or open ended question) on the blackboard.
@@ -267,8 +266,8 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
 
   useEffect(() => {
     if (startPreloading) {
-      startSession();
       setStartPreloading(false);
+      startSession();
     }
   }, [startPreloading]);
 
@@ -305,7 +304,7 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
         sendClientEvent({
           type: "response.create",
           response: {
-            instructions: `Tell the user that you just interrupted the video for a surprise popup question! Then display the recap info of the video on the blackboard.`,
+            // instructions: `Tell the user that you just interrupted the video for a surprise popup question! Then display the recap info about the video (look at the video transcript) on the blackboard.`,
             //tool_choice: "required",
           },
        });
@@ -407,14 +406,6 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       });
     }
   }, [events]);
-
-
-  useEffect(() => {
-    if (conversationMode) {
-      console.log("Starting real time chat");
-      startSession();
-    }
-  }, [conversationMode]);
 
   function handleEndChat() {
     setConversationMode(false);
