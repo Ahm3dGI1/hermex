@@ -7,7 +7,7 @@ Hermex is an educational assistant designed to improve learning experiences usin
 ## Features
 
 - **AI-Powered Video Preprocessing**: Extracts transcripts, summaries, and checkpoints from YouTube videos using OpenAI's Whisper and GPT models.
-- **Interactive Frontend**: Provides tools for real-time quizzes and explanations during video playback.
+- **Interactive Frontend**: Provides tools for real-time quizzes and explanations during video playback using OpenAIRealtimeEndpoint.
 
 ---
 
