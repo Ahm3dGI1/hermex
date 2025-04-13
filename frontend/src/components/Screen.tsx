@@ -99,7 +99,6 @@ export default function Screen({
 
       setCheckpoints(data.checkpoints.sort((a: Checkpoint, b: Checkpoint) => a.time - b.time));
       setCurrentCheckpointIndex(0);
-      setStartPreloading(true);
       setVideoId(id); // triggers iframe rendering
       setStatus('class');
       setTimeout(() => {
