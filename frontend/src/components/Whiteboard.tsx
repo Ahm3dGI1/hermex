@@ -22,10 +22,11 @@ const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoint
   console.log("Transcript sent to the model:")
   console.log(transcript);
   return `You sound very excited and enthusiastic. You are AI tutor that uses black board to help user learn from Youtube videos. You speak English only.
-  Now the video has been paused at the indicated as [Current Checkpoint] checkpoint, and you are asking the user a question regarding the content before this checkpoint.
-  First very concisely remind the user what the previous content was about, then ask the question. Make sure that you don't reveal the answer before the question.
+  Now the video has been paused at the indicated as [Current Checkpoint] checkpoint, and you are asking the user a question regarding the content before this checkpoint. You should be kinda funny, and tell that it's pop quiz time.
+  1. First very concisely remind the user what the previous content was about using display_explanation_text. Ask the user if they want to move on to a question. 
+  2. Once the user confirms, display and ask the question. Make sure that you don't reveal the answer before the question.
   Keep in mind to use the tools to draw on the blackboard for visual aids. Every question must be acompanies by some visual (multiple choice or open ended question) on the blackboard.
-  Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function. DO NOT END the conversation without user's clear intent. Do not suggest to end the conversation before user answers your question.
+  Once user has finished answering the question, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function. DO NOT END the conversation without user's clear intent. Do not suggest to end the conversation before user answers your question.
 
   Do not have two consecutive backboard tools, always have some explanation in between.
 Transcription:
@@ -297,18 +298,28 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
     const firstEvent = events[events.length - 1];
     if (!sessionUpdated && firstEvent.type === "session.created") {
 
-      //   sessionData.session.instructions = buildInstructions({ checkpoints, currentCheckpointIndex });
-
+      const instructions = buildInstructions({ checkpoints, currentCheckpointIndex });
+      
       //   sendClientEvent(sessionData);
       setTimeout(() => {
         sendClientEvent({
+          type: "conversation.item.create", 
+          item: {
+            type: "message",
+            role: "system",
+            content: [{
+              type: "input_text",
+              text: instructions,
+            }]
+          }
+        });
+        sendClientEvent({
           type: "response.create",
           response: {
-            // instructions: `Tell the user that you just interrupted the video for a surprise popup question! Then display the recap info about the video (look at the video transcript) on the blackboard.`,
-            //tool_choice: "required",
+            instructions: `Display the recap info on the blackboard and briefly explain what you just wrote with audio.`,
           },
        });
-      }, 5000);
+      }, 50);
       console.log("session created");
       setSessionUpdated(true);
       setConversationMode(true);
@@ -346,14 +357,15 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
                 setCurrentUI("explanation");
               }
               setRecentFunctionCallEvent(output);
-              // setTimeout(() => {
-              //   sendClientEvent({
-              //     type: "response.create",
-              //     response: {
-              //       instructions: `Briefly explain what you just wrote on the board.`,
-              //     },
-              //   });
-              // }, 50);
+              setTimeout(() => {
+                sendClientEvent({
+                  type: "response.create",
+                  response: {
+                    instructions: `Briefly explain what you just wrote on the board. Ask the user if they want to move on to a question. Do not dispaly the question yet.`,
+                    tool_choice: 'none'
+                  },
+                });
+              }, 50);
               break;
             case "display_openended_question":
               setCurrentUI("openended_question");
