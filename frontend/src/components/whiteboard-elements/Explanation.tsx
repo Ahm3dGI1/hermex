@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { autoEscapeJSON } from '../../types/jsonUtils';
 import { ResponseOutput } from '../Types';
 
 
@@ -91,7 +92,7 @@ export default function ExplanationComponent({ functionCallOutput }: { functionC
 
   useEffect(() => {
     try {
-      const parsed: ExplanationData = JSON.parse(functionCallOutput.arguments || '{}');
+      const parsed: ExplanationData = JSON.parse(autoEscapeJSON(functionCallOutput.arguments || '{}'));
       setData({
         title: parsed.title || '',
         bullets: Array.isArray(parsed.bullets) ? parsed.bullets : []

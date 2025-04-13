@@ -28,6 +28,7 @@ const buildInstructions = ({ checkpoints, currentCheckpointIndex }: { checkpoint
   Keep in mind to use the tools to draw on the blackboard for visual aids. Every question must be acompanies by some visual (multiple choice or open ended question) on the blackboard.
   Once everything is done, ask the user if they want to go back to the video, and if they say yes, end the conversation with the end_conversation function. If you are ending the conversation, make sure to say good bye before actually running the function. DO NOT END the conversation without user's clear intent. Do not suggest to end the conversation before user answers your question.
 
+  Do not have two consecutive backboard tools, always have some explanation in between.
 Transcription:
   ${transcript}
   `;
@@ -293,25 +294,29 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       //   sessionData.session.instructions = buildInstructions({ checkpoints, currentCheckpointIndex });
 
       //   sendClientEvent(sessionData);
-      sendClientEvent({
-        type: "response.create",
-        response: {
-          instructions: `Display the recap.`,
-          tool_choice: "required",
-        },
-      });
-
+      setTimeout(() => {
+        sendClientEvent({
+          type: "response.create",
+          response: {
+            instructions: `Tell the user that you just interrupted the video for a surprise popup question! Then display the recap info of the video on the blackboard.`,
+            //tool_choice: "required",
+          },
+       });
+      }, 5000);
       console.log("session created");
       setSessionUpdated(true);
     }
 
     const mostRecentEvent = events[0];
-    console.log(mostRecentEvent);
+    if (!mostRecentEvent.type.includes("delta")) {
+      console.log(mostRecentEvent);
+    }
+    
     if (mostRecentEvent.type === "session.updated") {
       console.log("session updated");
       
     }
-    if (mostRecentEvent.type === "response.done" && (mostRecentEvent.response?.output?.[0]?.type === "message" || mostRecentEvent.response?.output?.[1]?.type === "message")) {
+    if (mostRecentEvent.type === "output_audio_buffer.stopped") {
       setHermexIsAnimating(false);
     }
     if (mostRecentEvent.type === "response.audio_transcript.delta") {
@@ -334,11 +339,14 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
                 setCurrentUI("explanation");
               }
               setRecentFunctionCallEvent(output);
-              setTimeout(() => {
-                sendClientEvent({
-                  type: "response.create",
-                });
-              }, 20);
+              // setTimeout(() => {
+              //   sendClientEvent({
+              //     type: "response.create",
+              //     response: {
+              //       instructions: `Briefly explain what you just wrote on the board.`,
+              //     },
+              //   });
+              // }, 50);
               break;
             case "display_openended_question":
               setCurrentUI("openended_question");
@@ -346,8 +354,11 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
               setTimeout(() => {
                 sendClientEvent({
                   type: "response.create",
+                  response: {
+                    instructions: `Briefly explain what you just wrote on the board.`,
+                  },
                 });
-              }, 20);
+              }, 50);
               break;
             case "display_multiple_choice":
               setCurrentUI("multiple_choice");
@@ -355,8 +366,11 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
               setTimeout(() => {
                 sendClientEvent({
                   type: "response.create",
+                  response: {
+                    instructions: `Briefly explain what you just wrote on the board.`,
+                  },
                 });
-              }, 20);
+              }, 50);
               break;
             case "end_conversation":
               setTimeout(() => {
