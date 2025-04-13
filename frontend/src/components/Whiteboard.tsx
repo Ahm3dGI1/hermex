@@ -149,7 +149,6 @@ export default function Whiteboard({ status, setStatus, conversationMode, setCon
       tool_choice: "auto",
       turn_detection: {
         type: "semantic_vad",
-        eagerness: "low",
       }
     };
     const response = await fetch(`${apiurl}/session-token`, {
