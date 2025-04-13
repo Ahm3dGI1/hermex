@@ -1,7 +1,7 @@
 type Status = 'waitingForInput' | 'processing' | 'class' | 'review' | 'done';
 
 
-type EventType = "response.done" | "session.update" | "session.created" | "response.create" | "session.updated" | "conversation.item.create" | "response.created";
+type EventType = "response.done" | "session.update" | "session.created" | "response.create" | "session.updated" | "conversation.item.create" | "response.created" | "response.audio_transcript.delta";
 
 export interface Checkpoint {
     time: number;
